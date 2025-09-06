@@ -1,0 +1,99 @@
+"use client";
+
+import Button from "@/component/Button";
+import InputField from "@/component/InputField";
+import PasswordField from "@/component/PasswordField";
+import Link from "next/link";
+import { useState } from "react";
+import { AiOutlineLock, AiOutlineMail } from "react-icons/ai";
+
+export default function Login() {
+    const [formData, setFormData] = useState({ email: "", password: "" });
+    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+    };
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        const newErrors: { email?: string; password?: string } = {};
+
+        if (!formData.email) newErrors.email = "Email is required";
+        if (!formData.password) newErrors.password = "Password is required";
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) return;
+
+        console.log("Login data:", formData);
+    };
+
+
+    return (
+        <div className="min-h-screen flex flex-col md:flex-row">
+            <div className="md:w-1/2 hidden md:flex items-center justify-center bg-blue-50 p-8">
+                <div className="text-center">
+                    <img
+                        src="/images/login.png"
+                        alt="login image"
+                        className="mx-auto w-3/4"
+                    />
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Stay Organized</h2>
+                    <p className="text-sm lg:text-base text-gray-600 lg:mx-10">
+                        Achieve more, stress less. <span className="font-bold text-blue-400">Log in</span> to your To-Do App and unlock your full productivity potential
+                    </p>
+                </div>
+            </div>
+
+            <div className="md:w-1/2 flex items-center justify-center bg-white p-8">
+                <div className="w-full max-w-md">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome Back</h1>
+                    <p className="text-gray-600 mb-6">
+                        Login to manage your tasks and stay productive
+                    </p>
+
+                    <form onSubmit={handleLogin} className="space-y-4">
+
+                        <InputField
+                            label="Email"
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="you@example.com"
+                            error={errors.email}
+                            icon={<AiOutlineMail />}
+                        />
+
+                        <PasswordField
+                            label="Password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="••••••••"
+                            error={errors.password}
+                        />
+
+
+                        <div className="text-right">
+                            <Link href="/auth/forget-password" className="text-sm text-blue-500 hover:underline">
+                                Forgot password?
+                            </Link>
+                        </div>
+
+                        <Button type="submit" text="Login" />
+                    </form>
+
+                    <p className="mt-6 text-center text-gray-600 text-sm">
+                        Don't have an account?{" "}
+                        <Link href="/auth/signup" className="text-blue-500 hover:underline">
+                            Sign up
+                        </Link>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
