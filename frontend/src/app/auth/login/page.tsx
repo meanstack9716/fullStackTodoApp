@@ -3,9 +3,10 @@
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import PasswordField from "@/component/PasswordField";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { AiOutlineLock, AiOutlineMail } from "react-icons/ai";
+import { AiOutlineMail } from "react-icons/ai";
 
 export default function Login() {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -35,11 +36,14 @@ export default function Login() {
         <div className="min-h-screen flex flex-col md:flex-row">
             <div className="md:w-1/2 hidden md:flex items-center justify-center bg-blue-50 p-8">
                 <div className="text-center">
-                    <img
+                    <Image
                         src="/images/login.png"
                         alt="login image"
-                        className="mx-auto w-3/4"
+                        width={400}
+                        height={300}
+                        className="mx-auto w-3/4 h-auto"
                     />
+
                     <h2 className="text-3xl font-bold text-gray-800 mb-2">Stay Organized</h2>
                     <p className="text-sm lg:text-base text-gray-600 lg:mx-10">
                         Achieve more, stress less. <span className="font-bold text-blue-400">Log in</span> to your To-Do App and unlock your full productivity potential
