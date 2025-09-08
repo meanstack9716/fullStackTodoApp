@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { AiOutlineMail } from "react-icons/ai";
+import { validateEmail, validatePassword } from "../../../../utils/validators";
 
 export default function Login() {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -15,14 +16,24 @@ export default function Login() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => ({ ...prev, [name]: "" }));
+
+        let errorMsg = "";
+        if (name === "email") {
+            errorMsg = validateEmail(value) ?? "";
+        } else if (name === "password") {
+            errorMsg = validatePassword(value) ?? "";
+        }
+
+        setErrors((prev) => ({ ...prev, [name]: errorMsg }));
     };
+
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         const newErrors: { email?: string; password?: string } = {};
-
-        if (!formData.email) newErrors.email = "Email is required";
-        if (!formData.password) newErrors.password = "Password is required";
+        const emailError = validateEmail(formData.email);
+        const passwordError = validatePassword(formData.password);
+        if (emailError) newErrors.email = emailError;
+        if (passwordError) newErrors.password = passwordError;
 
         setErrors(newErrors);
 
@@ -46,7 +57,7 @@ export default function Login() {
 
                     <h2 className="text-3xl font-bold text-gray-800 mb-2">Stay Organized</h2>
                     <p className="text-sm lg:text-base text-gray-600 lg:mx-10">
-                        Achieve more, stress less. <span className="font-bold text-blue-400">Log in</span> to your To-Do App and unlock your full productivity potential
+                        Achieve more, stress less. <span className="font-bold text-blue-400 cursor-pointer">Log in</span> to your To-Do App and unlock your full productivity potential
                     </p>
                 </div>
             </div>
@@ -91,7 +102,7 @@ export default function Login() {
                     </form>
 
                     <p className="mt-6 text-center text-gray-600 text-sm">
-                        Don't have an account?{" "}
+                        Do not have an account?{" "}
                         <Link href="/auth/signup" className="text-blue-500 hover:underline">
                             Sign up
                         </Link>
