@@ -29,7 +29,7 @@ export default function InputField({
                     value={value}
                     onChange={onChange}
                     placeholder={placeholder}
-                    className={`peer w-full px-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-600 ${error ? "border-red-500" : "border-gray-200"
+                    className={`peer w-full px-10 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500 text-gray-600 ${error ? "border-red-500" : "border-gray-200"
                         }`}
                 />
 
