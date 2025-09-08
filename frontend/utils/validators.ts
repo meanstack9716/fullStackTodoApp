@@ -1,4 +1,6 @@
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const nameRegex = /^[A-Za-z]{3,}$/;
+export const usernameRegex = /^[A-Za-z0-9_]{3,}$/;
 
 export const passwordRegex =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -10,11 +12,33 @@ export const validateEmail = (email: string): string | null => {
     return null;
 };
 
+// Validate first/last name
+export const validateName = (name: string, field: string): string | null => {
+    if (!name) return `${field} is required`;
+    if (!nameRegex.test(name)) return `${field} must be at least 3 letters`;
+    return null;
+};
+
+// Validate username
+export const validateUsername = (username: string): string | null => {
+    if (!username) return "Username is required";
+    if (!usernameRegex.test(username)) return "Username must be at least 3 characters (letters, numbers, _)";
+    return null;
+};
+
+
 // Validate password
 export const validatePassword = (password: string): string | null => {
     if (!password) return "Password is required";
     if (!passwordRegex.test(password)) {
         return "Password must be at least 8 characters, include 1 letter, 1 number, and 1 special character";
     }
+    return null;
+};
+
+// Confirm password validation
+export const validateConfirmPassword = (password: string, confirmPassword: string): string | null => {
+    if (!confirmPassword) return "Confirm password is required";
+    if (password !== confirmPassword) return "Passwords do not match";
     return null;
 };
