@@ -14,7 +14,7 @@ export default function ForgetPassword() {
 
   const [formData, setFormData] = useState({
     email: "",
-    otp: "",
+    otp: Array(5).fill(""),
     password: "",
     confirmPassword: "",
   });
@@ -25,13 +25,12 @@ export default function ForgetPassword() {
 
   const handleOtpChange = (val: string, index: number) => {
     if (/[^0-9]/.test(val)) return;
-    const otpArray = formData.otp.split("").concat(Array(5).fill(""));
+    const otpArray = [...formData.otp];
     otpArray[index] = val.slice(-1);
-    const newOtp = otpArray.join("").slice(0, 5);
 
-    setFormData((prev) => ({ ...prev, otp: newOtp }));
+    setFormData((prev) => ({ ...prev, otp: otpArray }));
 
-    if (val && index < 5) otpRefs.current[index + 1]?.focus();
+    if (val && index < 4) otpRefs.current[index + 1]?.focus();
     if (!val && index > 0) otpRefs.current[index - 1]?.focus();
   };
 
@@ -63,11 +62,12 @@ export default function ForgetPassword() {
     }
 
     if (step === "otp") {
-      if (formData.otp.length !== 5) {
-        setErrors({ otp: "Enter a valid 6-digit OTP" });
+      const otpValue = formData.otp.join("");
+      if (otpValue.length !== 5) {
+        setErrors({ otp: "Enter a valid 5-digit OTP" });
         return;
       }
-      console.log("Verify OTP:", formData.otp);
+      console.log("Verify OTP:", otpValue);
       setStep("reset");
       return;
     }
@@ -91,7 +91,7 @@ export default function ForgetPassword() {
 
       setFormData({
         email: "",
-        otp: "",
+        otp: Array(5).fill(""),
         password: "",
         confirmPassword: "",
       });
@@ -181,7 +181,7 @@ export default function ForgetPassword() {
                       maxLength={1}
                       className={`w-12 h-12 lg:w-15 lg:h-15 text-center text-black border rounded-md text-lg focus:ring focus:outline-none 
                        ${errors.otp ? "border-red-500 " : "border-gray-200"}`}
-                      value={formData.otp[i] || ""}
+                      value={formData.otp[i]}
                       onChange={(e) => handleOtpChange(e.target.value, i)}
                     />
                   ))}
