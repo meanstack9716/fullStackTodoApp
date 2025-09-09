@@ -8,10 +8,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { AiOutlineMail } from "react-icons/ai";
 import { validateEmail, validatePassword } from "../../../../utils/validators";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -118,7 +120,7 @@ export default function Login() {
                                 </Link>
                             </div>
 
-                            <Button type="submit" text="Login" />
+                            <Button type="submit" text="Login" onClick={() => router.push("/pages/dashboard")}/>
                         </form>
 
                         <p className="mt-6 text-center text-gray-600 text-sm">
