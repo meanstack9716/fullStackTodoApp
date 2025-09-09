@@ -77,10 +77,18 @@ export default function Signup() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="md:w-1/2 flex items-center justify-center bg-white px-5 lg:px-0 py-5">
         <div className="w-full max-w-md">
+          <h1 className="text-5xl font-bold text-blue-500 font-[cursive] md:hidden text-center mb-3">
+            <span className="underline decoration-blue-400 decoration-2 underline-offset-4">
+              To-Do
+            </span>
+            App
+          </h1>
+
           <h1 className="text-2xl xl:text-4xl font-bold text-gray-900 mb-1 lg:mb-2">Create Account</h1>
           <p className="text-sm xl:text-base text-gray-600 mb-2 lg:mb-4">
             Sign up to manage your tasks and stay productive
           </p>
+
 
           <form onSubmit={handleSignup} className="space-y-4">
             <InputField

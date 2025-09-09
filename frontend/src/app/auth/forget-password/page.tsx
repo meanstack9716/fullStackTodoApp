@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import PasswordField from "@/component/PasswordField";
@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AiOutlineMail } from "react-icons/ai";
 import { validateEmail, validatePassword } from "../../../../utils/validators";
+import { HtmlContext } from "next/dist/server/route-modules/pages/vendored/contexts/entrypoints";
 
 export default function ForgetPassword() {
   const [step, setStep] = useState<"email" | "otp" | "reset">("email");
@@ -36,16 +37,55 @@ export default function ForgetPassword() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let formattedValue = value;
+    if (name === "email") {
+      formattedValue = value.trim().toLowerCase();
+    }
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
 
     let error = "";
-    if (name === "email") error = validateEmail(value) ?? "";
+    if (name === "email") error = validateEmail(formattedValue) ?? "";
     if (name === "password") error = validatePassword(value) ?? "";
     if (name === "confirmPassword")
       error = value !== formData.password ? "Passwords do not match" : "";
 
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const otpPaste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 5);
+    if (!otpPaste) return;
+    const otpArray = otpPaste.split("");
+    while (otpArray.length < 5) otpArray.push("");
+    setFormData((prev) => ({ ...prev, otp: otpArray }));
+    const lastIndex = Math.min(otpPaste.length - 1, 4);
+    otpRefs.current[lastIndex]?.focus();
+  }
+
+  const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace' && !formData.otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+    if (e.key === "ArrowLeft" && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+    if (e.key === "ArrowRight" && index < 4) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  }
+
+  useEffect(()=>{
+    if(step === "email"){
+      document.querySelector<HTMLInputElement>('input[name="email"]')?.focus();
+    }
+    if(step === "otp"){
+      otpRefs.current[0]?.focus();
+    }
+    if(step === "reset"){
+      document.querySelector<HTMLInputElement>('input[name="password"]')?.focus();
+    }
+  },[step])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,6 +221,8 @@ export default function ForgetPassword() {
                       maxLength={1}
                       className={`w-12 h-12 lg:w-15 lg:h-15 text-center text-black border rounded-md text-lg focus:ring focus:outline-none 
                        ${errors.otp ? "border-red-500 " : "border-gray-200"}`}
+                      onPaste={i === 0 ? handleOtpPaste : undefined}
+                      onKeyDown={(e) => handleOtpKeyDown(e, i)}
                       value={formData.otp[i]}
                       onChange={(e) => handleOtpChange(e.target.value, i)}
                     />
