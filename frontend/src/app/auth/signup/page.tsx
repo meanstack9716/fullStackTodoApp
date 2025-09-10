@@ -153,7 +153,7 @@ export default function Signup() {
               error={errors.confirmPassword}
             />
 
-            <Button type="submit" text="Sign Up" />
+            <Button type="submit" text="Sign Up" className="py-2"/>
           </form>
 
           <p className="mt-4 text-center text-gray-600 text-sm">
