@@ -120,7 +120,7 @@ export default function Login() {
                                 </Link>
                             </div>
 
-                            <Button type="submit" text="Login" onClick={() => router.push("/pages/dashboard")}/>
+                            <Button type="submit" text="Login" onClick={() => router.push("/pages/dashboard")} className="py-2"/>
                         </form>
 
                         <p className="mt-6 text-center text-gray-600 text-sm">

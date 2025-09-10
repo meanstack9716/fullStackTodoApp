@@ -32,16 +32,19 @@ export default function Header({ title = "Dashboard" }) {
                 </div>
             </header>
 
-            {/* Sidebar Drawer for Mobile */}
-            {isSidebarOpen && (
-                <div className="fixed inset-0 z-50 flex">
-                    <div
-                        className="fixed inset-0 bg-black/20"
-                        onClick={() => setIsSidebarOpen(false)}
-                    ></div>
-                    <Sidebar user={{ name: "Hello User", email: "usertest@gmail.com" }} isMobile={true} onClose={() => setIsSidebarOpen(false)} />
-                </div>
-            )}
+            <div
+                className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ease-in-out
+                    ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                onClick={() => setIsSidebarOpen(false)}
+            ></div>
+
+            {/* Sidebar */}
+            <Sidebar
+                user={{ name: "Hello User", email: "usertest@gmail.com" }}
+                isMobile={true}
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
         </>
     );
 }

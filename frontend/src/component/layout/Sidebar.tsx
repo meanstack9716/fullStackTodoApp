@@ -10,13 +10,15 @@ import { MdOutlineClose } from "react-icons/md";
 export default function Sidebar({
     user = { name: "", email: "" },
     isMobile = false,
+    isOpen = false,
     onClose = () => { }
 }) {
     return (
         <aside
             className={`${isMobile
-                ? "flex flex-col w-70 min-h-screen bg-blue-700 text-white p-4"
-                : "hidden md:flex flex-col w-60 xl:w-72 min-h-screen bg-blue-700 text-white p-1 xl:p-4"
+                ? `fixed top-0 left-0 h-screen w-64 bg-blue-700 text-white p-4 z-50 transform transition-transform duration-500 ease-in-out
+                 ${isOpen ? "translate-x-0" : "-translate-x-full"}`
+                : "hidden md:flex flex-col w-64 xl:w-72 h-screen bg-blue-700 text-white p-1 xl:p-4"
                 }`}
         >
             <div className="flex flex-col items-center relative">
