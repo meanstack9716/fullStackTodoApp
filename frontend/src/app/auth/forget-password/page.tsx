@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { AiOutlineMail } from "react-icons/ai";
 import { validateEmail, validatePassword } from "../../../../utils/validators";
-import { HtmlContext } from "next/dist/server/route-modules/pages/vendored/contexts/entrypoints";
 
 export default function ForgetPassword() {
   const [step, setStep] = useState<"email" | "otp" | "reset">("email");
