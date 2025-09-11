@@ -16,9 +16,9 @@ export default function Sidebar({
     return (
         <aside
             className={`${isMobile
-                ? `fixed top-0 left-0 h-screen w-64 bg-blue-700 text-white p-4 z-50 transform transition-transform duration-500 ease-in-out
+                ? `fixed top-0 left-0 min-h-screen w-64 bg-blue-700 text-white p-4 z-50 transform transition-transform duration-500 ease-in-out
                  ${isOpen ? "translate-x-0" : "-translate-x-full"}`
-                : "hidden md:flex flex-col w-64 xl:w-72 h-screen bg-blue-700 text-white p-1 xl:p-4"
+                : "hidden md:flex flex-col w-64 xl:w-72 max-h-screen bg-blue-700 text-white p-1 xl:p-4"
                 }`}
         >
             <div className="flex flex-col items-center relative">
@@ -58,7 +58,7 @@ export default function Sidebar({
 
                     <li>
                         <Link
-                            href="/"
+                            href="/pages/myTask"
                             className="flex items-center gap-3 py-2 px-4 rounded-lg hover:bg-white/20 transition"
                             onClick={onClose}
                         >

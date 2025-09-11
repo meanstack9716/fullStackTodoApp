@@ -42,3 +42,32 @@ export const validateConfirmPassword = (password: string, confirmPassword: strin
     if (password !== confirmPassword) return "Passwords do not match";
     return null;
 };
+
+// Validate task title
+export const validateTitle = (title: string): string | null => {
+    if (!title) return "Title is required";
+    if (title.length < 3) return "Title must be at least 3 characters";
+    return null;
+};
+
+// Validate date
+export const validateDate = (date: string): string | null => {
+    if (!date) return "Date is required";
+    const selected = new Date(date);
+    const now = new Date();
+    if (selected < now) return "Date must be in the future";
+    return null;
+};
+
+// Validate priority
+export const validatePriority = (priority: string): string | null => {
+    if (!priority) return "Priority is required";
+    return null;
+};
+
+// Validate description
+export const validateDescription = (desc: string): string | null => {
+    if (!desc) return "Description is required";
+    if (desc.length < 10) return "Description must be at least 10 characters";
+    return null;
+};
