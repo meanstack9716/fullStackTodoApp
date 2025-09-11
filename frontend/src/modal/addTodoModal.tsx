@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+'use client'
+import React, { useRef, useState } from "react";
 import InputField from "@/component/InputField";
 import AddToDoModalProps from "@/interface/AddToDoModalProps";
 import { AiOutlineCalendar } from "react-icons/ai";
@@ -6,6 +7,11 @@ import { BiTask } from "react-icons/bi";
 import { validateDate, validateDescription, validatePriority, validateTitle } from "../../utils/validators";
 import { saveTaskToLocalStorage } from "../../utils/localStorage";
 import { Task } from "@/interface/Task";
+import dynamic from "next/dynamic";
+import { RichTextEditorHandle } from "@/component/RichTextEditor";
+const RichTextEditor = dynamic(() => import('@/component/RichTextEditor'), {
+  ssr: false
+});
 
 export default function AddToDoModal({ isOpen, onClose }: AddToDoModalProps) {
   const [formData, setFormData] = useState({
@@ -15,6 +21,7 @@ export default function AddToDoModal({ isOpen, onClose }: AddToDoModalProps) {
     description: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const descriptionRef = useRef<RichTextEditorHandle>(null);
   if (!isOpen) return null;
 
   const handleChange = (
@@ -28,7 +35,8 @@ export default function AddToDoModal({ isOpen, onClose }: AddToDoModalProps) {
     e.preventDefault();
     const newErrors: { [key: string]: string } = {}
 
-    const { title, date, priority, description } = formData;
+    const { title, date, priority } = formData;
+    const description = descriptionRef.current?.getContent() || "";
     const titleError = validateTitle(title);
     const dateError = validateDate(date);
     const priorityError = validatePriority(priority);
@@ -68,7 +76,7 @@ export default function AddToDoModal({ isOpen, onClose }: AddToDoModalProps) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 sm:mx-6 lg:mx-auto p-6  relative overflow-y-auto max-h-[90vh]">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 sm:mx-6 lg:mx-auto px-6 py-4  relative overflow-y-auto max-h-[90vh]">
 
         <button
           onClick={handleClose}
@@ -140,27 +148,16 @@ export default function AddToDoModal({ isOpen, onClose }: AddToDoModalProps) {
               <p className="text-red-500 text-xs mt-1">{errors.priority}</p>
             )}
           </div>
-
           {/* Task Description */}
-          <div>
+          <div className="!text-black">
             <label className="block text-gray-700 font-medium mb-1 text-sm sm:text-base">
               Task Description
             </label>
-            <textarea
-              name="description"
-              placeholder="Start writing here..."
-              rows={4}
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full border text-black border-gray-200 rounded-md sm:rounded-lg px-3 py-2 text-sm sm:text-base outline-none focus:ring focus:ring-blue-400 resize-none"
-            />
-            {errors.description && (
-              <p className="text-red-500 text-xs mt-1">{errors.description}</p>
-            )}
+            <RichTextEditor ref={descriptionRef} />
           </div>
 
           {/* Buttons */}
-          <div className="mt-2 sm:mt-4 flex justify-end">
+          <div className="flex justify-end">
             <button
               type="submit"
               className="px-5 py-2 rounded-md sm:rounded-lg bg-blue-600 text-white text-sm sm:text-base font-medium hover:bg-blue-700 cursor-pointer"

@@ -47,9 +47,11 @@ export default function MyTasks() {
                                     `}
                                 >
                                     <h3 className="font-semibold text-gray-800">{task.title}</h3>
-                                    <p className="max-w-50 text-gray-500 text-sm truncate">
-                                        {task.description || "No description"}
-                                    </p>
+                                     <div
+                                        className="max-w-50 truncate text-gray-500 text-sm prose line-clamp-2"
+                                        dangerouslySetInnerHTML={{ __html: task.description || "No description available" }}
+                                    />
+                                   
                                     <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs font-medium ${task.priority === 'Extreme'
@@ -61,7 +63,7 @@ export default function MyTasks() {
                                         >
                                             {task.priority}
                                         </span>
-                                         <span
+                                        <span
                                             className={`px-2 py-1 rounded-full text-xs font-medium ${task.status === 'Completed'
                                                 ? 'bg-green-100 text-green-600'
                                                 : task.status === 'In Progress'
@@ -92,13 +94,18 @@ export default function MyTasks() {
                                     <span className="text-gray-600 font-semibold">🗓️ Created:</span> {format(new Date(selectedTask.date), "yyyy-MM-dd HH:mm")}
                                 </p>
 
-                                 <p className="text-xs text-gray-500 mb-4 font-semibold lg:text-sm">
+                                <p className="text-xs text-gray-500 mb-4 font-semibold lg:text-sm">
                                     <span className="text-gray-600">📈 Status:</span> {selectedTask.status}
                                 </p>
 
-                                <p className="text-sm text-gray-500 break-normal font-sans lg:text-base leading-5">
-                                    <span className="text-gray-600 font-semibold">🗒️ Task Description:</span>  {selectedTask.description || "No description available"}
-                                </p>
+                                <div className="flex gap-0.5 text-sm text-gray-500 break-normal font-sans leading-5">
+                                    <span className="text-gray-600 font-semibold">🗒️ Task Description:</span>
+                                    <div
+                                        className="prose"
+                                        dangerouslySetInnerHTML={{ __html: selectedTask.description || "No description available" }}
+                                    />
+                                </div>
+
                             </div>
 
                             <div className="flex space-x-2 items-end justify-end mt-auto pt-4">
