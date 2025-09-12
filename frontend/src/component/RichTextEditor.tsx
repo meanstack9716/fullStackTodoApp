@@ -3,40 +3,52 @@
 import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
+
 export type RichTextEditorHandle = {
     getContent: () => string;
+    setContent: (content: string) => void;
 };
 
-const RichTextEditor = forwardRef<RichTextEditorHandle>((_, ref) => {
+type Props = {
+    value?: string;
+};
+
+const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(({ value = "" }, ref) => {
     const editorRef = useRef<HTMLDivElement>(null);
     const quillRef = useRef<Quill | null>(null);
 
     useEffect(() => {
-        if (editorRef.current) {
+        if (editorRef.current && !quillRef.current) {
             quillRef.current = new Quill(editorRef.current, {
                 theme: 'snow',
                 modules: {
                     toolbar: [
                         [{ header: [1, 2, 3, false] }],
                         ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'background': [] }],
+                        [{ background: [] }],
                         ['clean'],
                     ],
                 },
             });
-        }
 
-        return () => {
-            quillRef.current = null;
-        };
+            if (value) {
+                quillRef.current.root.innerHTML = value;
+            }
+        }
     }, []);
 
+    useEffect(() => {
+        if (quillRef.current && value !== undefined) {
+            quillRef.current.root.innerHTML = value;
+        }
+    }, [value]);
+
     useImperativeHandle(ref, () => ({
-        getContent: () => {
+        getContent: () => quillRef.current?.root.innerHTML || "",
+        setContent: (content: string) => {
             if (quillRef.current) {
-                return quillRef.current.root.innerHTML;
+                quillRef.current.root.innerHTML = content;
             }
-            return '';
         },
     }));
 
