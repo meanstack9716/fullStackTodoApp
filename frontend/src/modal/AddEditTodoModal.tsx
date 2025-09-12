@@ -1,12 +1,13 @@
 'use client';
 import React, { useRef, useState, useEffect } from "react";
-import InputField from "@/component/InputField";
+import { IoIosCalendar } from "react-icons/io";
 import { AiOutlineCalendar } from "react-icons/ai";
 import { BiTask } from "react-icons/bi";
+import dynamic from "next/dynamic";
+import InputField from "@/component/InputField";
 import { Task } from "@/interface/Task";
 import { RichTextEditorHandle } from "@/component/RichTextEditor";
-import dynamic from "next/dynamic";
-import { validateDate, validateDescription, validatePriority, validateTitle } from "../../utils/validators";
+import { validateDate, validateDescription, validateExpireAt, validatePriority, validateTitle } from "../../utils/validators";
 import AddEditTodoModalProps from "@/interface/AddEditToDoModalProps";
 
 const RichTextEditor = dynamic(() => import("@/component/RichTextEditor"), {
@@ -17,10 +18,17 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
     const [formData, setFormData] = useState({
         title: "",
         date: "",
-        priority: ""
+        priority: "",
+        expireAt: ""
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const descriptionRef = useRef<RichTextEditorHandle>(null);
+
+    const resetForm = () => {
+        setFormData({ title: "", date: "", priority: "", expireAt: "" });
+        setErrors({});
+        descriptionRef.current?.setContent("");
+    };
 
     useEffect(() => {
         if (task) {
@@ -28,11 +36,12 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                 title: task.title,
                 date: task.date,
                 priority: task.priority,
+                expireAt: task.expireAt || ""
             });
         } else {
-            setFormData({ title: "", date: "", priority: "" });
+            resetForm();
         }
-    }, [task]);
+    }, [task, isOpen]);
 
     if (!isOpen) return null;
 
@@ -50,6 +59,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         const plainText = description.replace(/<(.|\n)*?>/g, '').trim();
         const titleError = validateTitle(title);
         const dateError = validateDate(date);
+        const expireAtError = validateExpireAt(formData.expireAt, date);
         const priorityError = validatePriority(priority);
         const descError = validateDescription(plainText);
 
@@ -57,6 +67,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         if (dateError) newErrors.date = dateError;
         if (priorityError) newErrors.priority = priorityError;
         if (descError) newErrors.description = descError;
+        if (expireAtError) newErrors.expireAt = expireAtError;
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -70,10 +81,20 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
             priority: priority as "Extreme" | "Moderate" | "Low",
             description,
             completed: task?.completed || false,
-            status: task?.status || "Pending",
+            expireAt: formData.expireAt,
+            status:
+                formData.expireAt && new Date(formData.expireAt) < new Date()
+                    ? "Expired"
+                    : task?.status || "Pending",
         };
-
+        console.log(updatedTask)
         onSave(updatedTask);
+        resetForm();
+        onClose();
+    };
+
+    const handleClose = () => {
+        resetForm(); 
         onClose();
     };
 
@@ -82,7 +103,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
             <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 px-6 py-4 relative overflow-y-auto max-h-[90vh]">
                 {/* Close */}
                 <button
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="absolute top-7 right-7 text-sm text-black font-medium hover:underline cursor-pointer"
                 >
                     Go Back
@@ -123,9 +144,20 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                         icon={<AiOutlineCalendar />}
                     />
 
+                    <InputField
+                        label="Expire Time"
+                        type="datetime-local"
+                        name="expireAt"
+                        value={formData.expireAt}
+                        onChange={handleChange}
+                        placeholder="Set expiry time"
+                        error={errors.expireAt}
+                        icon={<IoIosCalendar />}
+                    />
+
                     {/* Priority */}
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                        <label className="block text-gray-700 font-medium mb-0.5 text-sm">
                             Priority
                         </label>
                         <div className="flex gap-6">

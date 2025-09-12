@@ -71,3 +71,11 @@ export const validateDescription = (desc: string): string | null => {
     if (desc.length < 10) return "Description must be at least 10 characters";
     return null;
 };
+
+// Validate expire time
+export const validateExpireAt = (expireAt: string, date: string): string | null => {
+    if (new Date(expireAt) < new Date(date)) {
+        return "Expire time cannot be earlier than task time";
+    }
+    return null;
+};

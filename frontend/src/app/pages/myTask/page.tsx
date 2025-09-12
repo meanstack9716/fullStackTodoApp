@@ -6,11 +6,13 @@ import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 import { format } from "date-fns";
 import DeleteToDoModal from "@/modal/DeleteTodoModal";
 import AddEditTodoModal from "@/modal/AddEditTodoModal";
+import { countDown } from "../../../../utils/countDown";
 
 export default function MyTasks() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [activeModal, setActiveModal] = useState<null | "delete" | "edit">(null);
+    const timeLeft = countDown(selectedTask?.expireAt);
 
     useEffect(() => {
         try {
@@ -115,8 +117,13 @@ export default function MyTasks() {
                                     <span className="text-gray-600 font-semibold">🗓️ Created:</span> {format(new Date(selectedTask.date), "yyyy-MM-dd HH:mm")}
                                 </p>
 
-                                <p className="text-xs text-gray-500 mb-4 font-semibold lg:text-sm">
+                                <p className="text-xs text-gray-500 mb-1.5 font-semibold lg:text-sm">
                                     <span className="text-gray-600">📈 Status:</span> {selectedTask.status}
+                                </p>
+
+                                <p className="text-xs text-gray-500 mb-4 lg:text-sm">
+                                    <span className="text-gray-600 font-semibold">⏳ Time Left:</span>{" "}
+                                    {timeLeft || "No expiry set"}
                                 </p>
 
                                 <div className="flex gap-0.5 text-sm text-gray-500 break-normal font-sans leading-5">
