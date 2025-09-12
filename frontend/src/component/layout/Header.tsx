@@ -5,7 +5,8 @@ import { CiBellOn } from "react-icons/ci";
 import { FiMenu } from "react-icons/fi";
 import Button from "../Button";
 import Sidebar from "./Sidebar";
-import AddToDoModal from "@/modal/addTodoModal";
+import AddEditTodoModal from "@/modal/AddEditTodoModal";
+import { saveTaskToLocalStorage } from "../../../utils/localStorage";
 
 export default function Header({ title = "Dashboard" }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -13,8 +14,7 @@ export default function Header({ title = "Dashboard" }) {
 
     return (
         <>
-            <header className="flex items-center justify-between px-4 py-2 bg-indigo-50 shadow-sm xl:px-6 xl:py-2.5">
-                {/* Title */}
+            <header className="flex items-center justify-between px-3 py-2 bg-indigo-50 shadow-sm lg:px-4 xl:px-6 xl:py-2.5">
                 <h1 className="text-xl font-semibold text-gray-800 font-[cursive] md:pl-2 xl:pl-9 md:text-2xl xl:text-4xl">{title}</h1>
 
                 <div className="flex items-center gap-2.5 md:gap-4 xl:gap-8">
@@ -47,9 +47,13 @@ export default function Header({ title = "Dashboard" }) {
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}
             />
-            <AddToDoModal
+            <AddEditTodoModal
                 isOpen={isTaskModalOpen}
                 onClose={() => setIsTaskModalOpen(false)}
+                task={null} 
+                onSave={(task) => {
+                    saveTaskToLocalStorage(task);
+                }}
             />
         </>
     );
