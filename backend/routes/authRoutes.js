@@ -1,0 +1,50 @@
+const express = require('express')
+const router = express.Router();
+const User = require('./../models/user');
+const { jwtAuthMiddleware, generateToken } = require('./../jwt')
+
+router.post('/signup', async (req, res) => {
+    try {
+        const { firstName, lastName, username, email, password, confirmPassword } = req.body;
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ error: "Password and Confirm Password do not match" });
+        }
+        const existingEmail = await User.findOne({ email });
+        const existingUsername = await User.findOne({ username });
+
+        if (existingEmail || existingUsername) {
+            return res.status(400).json({ error: 'Email or Username already exists' })
+        }
+
+        const newUser = new User({
+            firstName,
+            lastName,
+            username,
+            email,
+            password
+        });
+
+        const savedUser = await newUser.save();
+
+        const payload = { id: savedUser.id };
+        const token = generateToken(payload);
+
+        res.status(200).json({
+            message: "user registered successfully",
+            user: {
+                id: savedUser.id,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+                username: savedUser.username,
+                email: savedUser.email,
+            },
+            token,
+        });
+    } catch (err) {
+        console.log('Error saving user', err)
+        res.status(500).json({ error: "Internal server error", details: err.message });
+    }
+})
+
+module.exports = router;
