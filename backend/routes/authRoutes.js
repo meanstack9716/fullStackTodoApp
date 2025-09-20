@@ -1,13 +1,13 @@
 const express = require('express')
-const nodemailer = require("nodemailer");
 const router = express.Router();
-const { User, Otp } = require('./../models/user');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { generateToken } = require('../utils/jwt');
 const { signupSchema, signinSchema } = require('../validator/authValidator');
 const validateRequest = require('../middlewares/validateRequest');
 const { sendEmail } = require('../utils/emailService');
+const { Otp } = require('../models/otp');
+const { User } = require('./../models/user');
 
 // signUp 
 router.post('/signup', signupSchema, validateRequest, async (req, res) => {

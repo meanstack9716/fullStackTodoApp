@@ -36,27 +36,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const otpSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    otp: {
-      type: String,
-      required: true,
-    },
-    expiresAt: {
-      type: Date,
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
-
 userSchema.index({ email: 1, username: 1 }, { unique: true })
-otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 //  PASSWORD HASH 
 userSchema.pre("save", async function (next) {
@@ -72,7 +52,6 @@ userSchema.pre("save", async function (next) {
 });
 
 const User = mongoose.model("User", userSchema);
-const Otp = mongoose.model("Otp", otpSchema);
 
-module.exports = { User, Otp };
+module.exports = { User };
 
