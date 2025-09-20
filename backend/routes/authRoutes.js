@@ -9,7 +9,7 @@ const validateRequest = require('../middlewares/validateRequest');
 // signUp 
 router.post('/signup', signupSchema, validateRequest, async (req, res) => {
     try {
-        const { firstName, lastName, username, email, password, confirmPassword } = req.body;
+      
         const existingEmail = await User.findOne({ email });
         const existingUsername = await User.findOne({ username });
 
