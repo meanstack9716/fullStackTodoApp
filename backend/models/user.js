@@ -31,15 +31,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
-    },
-    confirmPassword: {
-      type: String,
-      required: true,
-      minlength: 6,
-    },
+    }
   },
   { timestamps: true }
 );
+
+userSchema.index({ email: 1, username: 1 }, { unique: true })
 
 //  PASSWORD HASH 
 userSchema.pre("save", async function (next) {

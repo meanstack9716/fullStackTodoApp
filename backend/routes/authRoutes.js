@@ -2,16 +2,15 @@ const express = require('express')
 const router = express.Router();
 const User = require('./../models/user');
 const bcrypt = require('bcrypt');
-const { jwtAuthMiddleware, generateToken } = require('./../jwt')
+const { generateToken } = require('../utils/jwt');
+const { signupSchema, signinSchema } = require('../validator/authValidator');
+const validateRequest = require('../middlewares/validateRequest');
 
 // signUp 
-router.post('/signup', async (req, res) => {
+router.post('/signup', signupSchema, validateRequest, async (req, res) => {
     try {
         const { firstName, lastName, username, email, password, confirmPassword } = req.body;
 
-        if (password !== confirmPassword) {
-            return res.status(400).json({ error: "Password and Confirm Password do not match" });
-        }
         const existingEmail = await User.findOne({ email });
         const existingUsername = await User.findOne({ username });
 
@@ -50,15 +49,15 @@ router.post('/signup', async (req, res) => {
 })
 
 //signIn
-router.post('/signin', async (req, res) => {
+router.post('/signin', signinSchema, validateRequest, async (req, res) => {
     try {
         const { email, password } = req.body;
 
         const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ error: 'user not found' });
+        if (!user) return res.status(401).json({ error: 'user not found' });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+        if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
         const token = generateToken({ id: user.id });
         res.status(200).json({
