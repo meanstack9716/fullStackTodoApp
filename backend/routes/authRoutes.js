@@ -1,11 +1,13 @@
 const express = require('express')
 const nodemailer = require("nodemailer");
 const router = express.Router();
-const User = require('./../models/user');
+const { User, Otp } = require('./../models/user');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const { generateToken } = require('../utils/jwt');
 const { signupSchema, signinSchema } = require('../validator/authValidator');
 const validateRequest = require('../middlewares/validateRequest');
+const { sendEmail } = require('../utils/emailService');
 
 // signUp 
 router.post('/signup', signupSchema, validateRequest, async (req, res) => {
@@ -83,21 +85,17 @@ router.post('/send-otp', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ message: "Email not registered" });
 
-        const otp = Math.floor(10000 + Math.random() * 90000).toString();
-        user.otp = otp;
-        user.otpExpires = Date.now() + 10 * 60 * 1000;
-        await user.save();
+        const otp = crypto.randomInt(10000, 100000).toString();
+        const salt = await bcrypt.genSalt(10);
+        const hashedOtp = await bcrypt.hash(otp, salt);
 
-        const transporter = nodemailer.createTransport({
-            service: "Gmail",
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
+        const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+        await Otp.create({ userId: user._id, otp: hashedOtp, expiresAt: otpExpires });
 
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: email,
-            subject: "Todo App - OTP Code",
-            text: `Hello,
+        await sendEmail(
+            email,
+            "Todo App - OTP Code",
+            `Hello,
 We received a request to verify your account on Todo App.
 Your OTP for Todo App is: ${otp}
 
@@ -108,7 +106,7 @@ If you didn’t request this, please ignore this email.
 
 - Todo App Team`
 
-        });
+        );
 
         res.json({ message: "OTP sent successfully" });
     } catch (err) {
@@ -123,8 +121,13 @@ router.post('/verify-otp', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ message: "Email not registered" });
 
-        if (user.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
-        if (user.otpExpires < new Date()) return res.status(400).json({ message: "OTP expired" });
+        const otpEntry = await Otp.findOne({ userId: user.id }).sort({ createdAt: -1 });
+        if (!otpEntry) return res.status(400).json({ message: "Invalid OTP" });
+
+        if (otpEntry.expiresAt < new Date()) return res.status(400).json({ message: "OTP expired" });
+
+        const isMatch = await bcrypt.compare(otp, otpEntry.otp);
+        if (!isMatch) return res.status(400).json({ message: "Invalid OTP" });
 
         res.json({ message: "OTP verified successfully" });
     } catch (err) {
@@ -140,16 +143,19 @@ router.post('/reset-password', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ message: "Email not registered" });
 
-        if (user.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
-        if (user.otpExpires < new Date()) return res.status(400).json({ message: "OTP expired" });
+        const otpEntry = await Otp.findOne({ userId: user._id, }).sort({ createdAt: -1 });
+        if (!otpEntry) return res.status(400).json({ message: "Invalid OTP" });
+
+        if (otpEntry.expiresAt < new Date()) return res.status(400).json({ message: "OTP expired" });
+
+        const isMatch = await bcrypt.compare(otp, otpEntry.otp);
+        if (!isMatch) return res.status(400).json({ message: "Invalid OTP" });
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        user.password = hashedPassword;
-        user.otp = null;
-        user.otpExpires = null;
+        user.password = await bcrypt.hash(newPassword, salt);
         await user.save();
+
+        await Otp.deleteOne({ _id: otpEntry._id });
 
         res.json({ message: "Password reset successfully" });
 

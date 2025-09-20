@@ -31,18 +31,32 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
+    }
+  },
+  { timestamps: true }
+);
+
+const otpSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     otp: {
-      type: String
+      type: String,
+      required: true,
     },
-    otpExpires: {
-      type: Date
+    expiresAt: {
+      type: Date,
+      required: true,
     },
   },
   { timestamps: true }
 );
 
 userSchema.index({ email: 1, username: 1 }, { unique: true })
+otpSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 //  PASSWORD HASH 
 userSchema.pre("save", async function (next) {
@@ -58,4 +72,7 @@ userSchema.pre("save", async function (next) {
 });
 
 const User = mongoose.model("User", userSchema);
-module.exports = User;
+const Otp = mongoose.model("Otp", otpSchema);
+
+module.exports = { User, Otp };
+
