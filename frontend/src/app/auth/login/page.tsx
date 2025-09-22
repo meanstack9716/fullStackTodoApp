@@ -1,47 +1,71 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { validateEmail } from "../../../../utils/validators";
+import { useRouter } from "next/navigation";
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import PasswordField from "@/component/PasswordField";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import { AiOutlineMail } from "react-icons/ai";
-import { validateEmail, validatePassword } from "../../../../utils/validators";
-import { useRouter } from "next/navigation";
+import { loginUser, resetError } from "@/features/authSlice";
+import { AppDispatch, RootState } from "@/store/store";
+import { AiOutlineLoading3Quarters, AiOutlineMail } from "react-icons/ai";
 
 export default function Login() {
+    const dispatch = useDispatch<AppDispatch>();
+    const { loading, error } = useSelector((state: RootState) => state.auth);
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
     const router = useRouter();
+
+    useEffect(() => {
+        dispatch(resetError());
+    }, [dispatch]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
 
-        let errorMsg = "";
         if (name === "email") {
-            errorMsg = validateEmail(value) ?? "";
-        } else if (name === "password") {
-            errorMsg = validatePassword(value) ?? "";
+            const emailError = validateEmail(value) ?? "";
+            setErrors((prev) => ({ ...prev, email: emailError }));
         }
-
-        setErrors((prev) => ({ ...prev, [name]: errorMsg }));
+        if (name === "password") {
+            setErrors((prev) => ({ ...prev, password: "" }));
+        }
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         const newErrors: { email?: string; password?: string } = {};
         const emailError = validateEmail(formData.email);
-        const passwordError = validatePassword(formData.password);
         if (emailError) newErrors.email = emailError;
-        if (passwordError) newErrors.password = passwordError;
+        if (!formData.password) {
+            newErrors.password = "Password is required";
+        }
 
         setErrors(newErrors);
 
-        if (Object.keys(newErrors).length > 0) return;
+        if (Object.keys(newErrors).length === 0) {
+            try {
+                await dispatch(loginUser({
+                    email: formData.email,
+                    password: formData.password
+                })).unwrap();
+                router.push('/pages/dashboard')
+                setFormData({
+                    email: "",
+                    password: "",
+                });
+                console.log("Login data:", formData);
+            } catch (err) {
+                console.error("login failed:", err);
+            }
+        };
 
-        console.log("Login data:", formData);
+
     };
 
 
@@ -113,14 +137,19 @@ export default function Login() {
                                 error={errors.password}
                             />
 
-
                             <div className="text-right">
                                 <Link href="/auth/forget-password" className="text-sm text-blue-500 hover:underline">
                                     Forgot password?
                                 </Link>
                             </div>
 
-                            <Button type="submit" text="Login" onClick={() => router.push("/pages/dashboard")} className="py-2"/>
+                            {error && <p className="text-red-500 text-sm mb-2.5 -mt-4">{error}</p>}
+
+                            <Button type="submit"
+                                className="py-2 flex items-center justify-center"
+                                text={
+                                    loading ? (<AiOutlineLoading3Quarters className="animate-spin" />) : ("Sign In")
+                                } disabled={loading} />
                         </form>
 
                         <p className="mt-6 text-center text-gray-600 text-sm">
