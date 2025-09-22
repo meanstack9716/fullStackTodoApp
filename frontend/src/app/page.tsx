@@ -27,13 +27,13 @@ export default function Home() {
       {/* Action Buttons */}
       <div className="flex flex-row gap-4">
         <Link
-          href="/auth/signup"
+          href="/signup"
           className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
         >
           Sign Up
         </Link>
         <Link
-          href="/auth/login"
+          href="/login"
           className="px-6 py-3 bg-gray-100 text-gray-800 rounded-lg font-medium hover:bg-gray-200 transition"
         >
           Log In

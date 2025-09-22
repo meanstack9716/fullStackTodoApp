@@ -1,15 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { validateConfirmPassword, validateEmail, validateName, validatePassword, validateUsername } from "../../../utils/validators";
+import { AppDispatch, RootState } from "@/store/store";
+import { resetError, signupUser } from "@/features/authSlice";
+import { AiOutlineMail, AiOutlineUser, AiOutlineLoading3Quarters } from "react-icons/ai";
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import PasswordField from "@/component/PasswordField";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import { AiOutlineMail, AiOutlineUser } from "react-icons/ai";
-import { validateConfirmPassword, validateEmail, validateName, validatePassword, validateUsername } from "../../../../utils/validators";
 
 export default function Signup() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -20,7 +27,9 @@ export default function Signup() {
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  useEffect(() => {
+    dispatch(resetError());
+  }, [dispatch]);
   const validators: { [key: string]: (val: string) => string | null } = {
     firstName: (val) => validateName(val, "First Name"),
     lastName: (val) => validateName(val, "Last Name"),
@@ -47,7 +56,7 @@ export default function Signup() {
     });
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors: { [key: string]: string } = {};
@@ -58,18 +67,31 @@ export default function Signup() {
     setErrors(newErrors);
 
     if (Object.values(newErrors).every((err) => err === "")) {
-      console.log("Signup data:", formData);
-
-      setFormData({
-        firstName: "",
-        lastName: "",
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
-
-      setErrors({});
+      try {
+        await dispatch(
+          signupUser({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+          })
+        ).unwrap();
+        router.push('/')
+        setFormData({
+          firstName: "",
+          lastName: "",
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+        setErrors({});
+        console.log("Signup data:", formData);
+      } catch (err) {
+        console.error("Signup failed:", err);
+      }
     }
   };
 
@@ -88,7 +110,6 @@ export default function Signup() {
           <p className="text-sm xl:text-base text-gray-600 mb-2 lg:mb-4">
             Sign up to manage your tasks and stay productive
           </p>
-
 
           <form onSubmit={handleSignup} className="space-y-4">
             <InputField
@@ -152,13 +173,24 @@ export default function Signup() {
               placeholder="••••••••"
               error={errors.confirmPassword}
             />
-
-            <Button type="submit" text="Sign Up" className="py-2"/>
+            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+            <Button
+              type="submit"
+              className="py-2 flex items-center justify-center"
+              text={
+                loading ? (
+                  <AiOutlineLoading3Quarters className="animate-spin" />
+                ) : (
+                  "Sign Up"
+                )
+              }
+              disabled={loading}
+            />
           </form>
 
           <p className="mt-4 text-center text-gray-600 text-sm">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-blue-500 hover:underline">
+            <Link href="/login" className="text-blue-500 hover:underline">
               Log in
             </Link>
           </p>
