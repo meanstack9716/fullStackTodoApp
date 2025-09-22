@@ -24,7 +24,11 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            console.error("Unauthorized! Please login again.");
+            if (typeof window !== "undefined") {
+                localStorage.clear();
+                window.location.href = "/auth/login";
+                console.error("Unauthorized! Please login again.");
+            }
         }
         return Promise.reject(error);
     }
