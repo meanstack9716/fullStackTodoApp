@@ -6,20 +6,28 @@ import { FaTasks, FaCog, FaQuestionCircle } from "react-icons/fa";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { BiTask } from "react-icons/bi";
 import { MdOutlineClose } from "react-icons/md";
+import Button from "@/component/Button";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar({
     user = { name: "", email: "" },
     isMobile = false,
     isOpen = false,
     onClose = () => { }
+
 }) {
+    const router = useRouter()
+    const handleLogout = () => {
+        localStorage.clear();
+        router.push('/')
+    }
     return (
         <aside
             className={`${isMobile
                 ? `fixed top-0 left-0 min-h-screen w-64 bg-blue-700 text-white p-4 z-50 transform transition-transform duration-500 ease-in-out
                  ${isOpen ? "translate-x-0" : "-translate-x-full"}`
                 : "hidden md:flex flex-col w-64 xl:w-72 max-h-screen bg-blue-700 text-white p-1 xl:p-4"
-                }`}
+                } flex flex-col justify-between`}
         >
             <div className="flex flex-col items-center relative">
                 {isMobile && (
@@ -94,6 +102,14 @@ export default function Sidebar({
                     </li>
                 </ul>
             </nav>
+            <div className="my-4">
+                <Button
+                    type="button"
+                    className="w-full py-2 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+                    text="Logout"
+                    onClick={handleLogout}
+                />
+            </div>
         </aside>
     );
 }

@@ -1,15 +1,22 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Image from "next/image";
+import Link from "next/link";
+import { AiOutlineMail, AiOutlineLoading3Quarters } from "react-icons/ai";
+import { validateEmail, validatePassword } from "../../../utils/validators";
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import PasswordField from "@/component/PasswordField";
-import Image from "next/image";
-import Link from "next/link";
-import { AiOutlineMail } from "react-icons/ai";
-import { validateEmail, validatePassword } from "../../../utils/validators";
+import { AppDispatch, RootState } from "@/store/store";
+import { resetPassword, sendOtp, verifyOtp } from "@/features/authSlice";
+import { useRouter } from "next/navigation";
 
 export default function ForgetPassword() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const router = useRouter()
   const [step, setStep] = useState<"email" | "otp" | "reset">("email");
 
   const [formData, setFormData] = useState({
@@ -74,17 +81,17 @@ export default function ForgetPassword() {
     }
   }
 
-  useEffect(()=>{
-    if(step === "email"){
+  useEffect(() => {
+    if (step === "email") {
       document.querySelector<HTMLInputElement>('input[name="email"]')?.focus();
     }
-    if(step === "otp"){
+    if (step === "otp") {
       otpRefs.current[0]?.focus();
     }
-    if(step === "reset"){
+    if (step === "reset") {
       document.querySelector<HTMLInputElement>('input[name="password"]')?.focus();
     }
-  },[step])
+  }, [step])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,8 +102,10 @@ export default function ForgetPassword() {
         setErrors({ email: emailError });
         return;
       }
-      console.log("Send OTP to:", formData.email);
-      setStep("otp");
+      dispatch(sendOtp({ email: formData.email }))
+        .unwrap()
+        .then(() => setStep("otp"))
+        .catch(() => { });
       return;
     }
 
@@ -106,8 +115,10 @@ export default function ForgetPassword() {
         setErrors({ otp: "Enter a valid 5-digit OTP" });
         return;
       }
-      console.log("Verify OTP:", otpValue);
-      setStep("reset");
+      dispatch(verifyOtp({ email: formData.email, otp: otpValue }))
+        .unwrap()
+        .then(() => setStep("reset"))
+        .catch(() => { });
       return;
     }
 
@@ -126,18 +137,25 @@ export default function ForgetPassword() {
         return;
       }
 
-      console.log("Reset password:", formData.password);
-
-      setFormData({
-        email: "",
-        otp: Array(5).fill(""),
-        password: "",
-        confirmPassword: "",
-      });
-      setErrors({});
-      setStep("email");
+      dispatch(resetPassword({
+        email: formData.email,
+        otp: formData.otp.join(""),
+        newPassword: formData.password
+      }))
+        .unwrap()
+        .then(() => {
+          router.push('./login')
+          setFormData(
+            {
+              email: "",
+              otp: Array(5).fill(""),
+              password: "",
+              confirmPassword: ""
+            });
+        })
+        .catch(() => { });
     }
-  };
+  }
 
   return (
     <div className=" flex flex-col md:flex-row min-h-screen items-center justify-center">
@@ -254,16 +272,19 @@ export default function ForgetPassword() {
                 />
               </>
             )}
-
+            {error && <p className="text-red-500 text-sm mb-2.5 -mt-2">{error}</p>}
             <Button
               type="submit"
               text={
-                step === "email"
-                  ? "Send OTP"
-                  : step === "otp"
-                    ? "Verify OTP"
-                    : "Reset Password"
+                loading ? (<AiOutlineLoading3Quarters className="animate-spin" />) :
+                  step === "email"
+                    ? "Send OTP"
+                    : step === "otp"
+                      ? "Verify OTP"
+                      : "Reset Password"
               }
+              disabled={loading}
+              className="py-2 flex items-center justify-center"
             />
           </form>
 

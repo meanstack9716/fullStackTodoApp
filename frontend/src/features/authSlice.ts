@@ -44,6 +44,59 @@ export const loginUser = createAsyncThunk<AuthResponse, LoginData, { rejectValue
   }
 );
 
+// Send OTP
+export const sendOtp = createAsyncThunk<void, { email: string }, { rejectValue: string }>(
+  "auth/sendOtp",
+  async (payload, { rejectWithValue }) => {
+    try {
+      await axiosInstance.post("/user/send-otp", payload);
+    } catch (error) {
+      let errorMessage = "Failed to send OTP";
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.error || errorMessage;
+      }
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+
+// Verify OTP
+export const verifyOtp = createAsyncThunk<void, { email: string; otp: string }, { rejectValue: string }>(
+  "auth/verifyOtp",
+  async (payload, { rejectWithValue }) => {
+    try {
+      await axiosInstance.post("/user/verify-otp", payload);
+    } catch (error) {
+      let errorMessage = "Failed to verify OTP";
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.error || errorMessage;
+      }
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Reset Password
+export const resetPassword = createAsyncThunk<
+  void,
+  { email: string; otp: string; newPassword: string },
+  { rejectValue: string }
+>(
+  "auth/resetPassword",
+  async (payload, { rejectWithValue }) => {
+    try {
+      await axiosInstance.post("/user/reset-password", payload);
+    } catch (error) {
+      let errorMessage = "Failed to reset password";
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.error || errorMessage;
+      }
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 interface AuthState {
   user: User | null;
   token: string | null;
@@ -88,10 +141,9 @@ const authSlice = createSlice({
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Signup failed";
-      });
+      })
 
-    // Login
-    builder
+      // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -104,6 +156,45 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Login failed";
+      })
+
+      // Send OTP
+      .addCase(sendOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendOtp.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(sendOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to send OTP";
+      })
+
+      // Verify OTP
+      .addCase(verifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to verify OTP";
+      })
+
+      // Reset Password
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to reset password";
       });
   },
 });

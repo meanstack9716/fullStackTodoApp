@@ -20,10 +20,6 @@ export default function Login() {
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
     const router = useRouter();
 
-    useEffect(() => {
-        dispatch(resetError());
-    }, [dispatch]);
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -67,6 +63,14 @@ export default function Login() {
 
 
     };
+
+    useEffect(() => {
+        dispatch(resetError());
+        const token = localStorage.getItem("token");
+        if (token) {
+            router.replace("/pages/dashboard");
+        }
+    }, [dispatch, router]);
 
 
     return (

@@ -23,7 +23,8 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : ""
+        if (error.response?.status === 401 && token) {
             if (typeof window !== "undefined") {
                 localStorage.clear();
                 window.location.href = "/login";
