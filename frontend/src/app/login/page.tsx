@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { validateEmail } from "../../../../utils/validators";
+import { validateEmail } from "../../../utils/validators";
 import { useRouter } from "next/navigation";
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
@@ -138,7 +138,7 @@ export default function Login() {
                             />
 
                             <div className="text-right">
-                                <Link href="/auth/forget-password" className="text-sm text-blue-500 hover:underline">
+                                <Link href="/forget-password" className="text-sm text-blue-500 hover:underline">
                                     Forgot password?
                                 </Link>
                             </div>
@@ -154,7 +154,7 @@ export default function Login() {
 
                         <p className="mt-6 text-center text-gray-600 text-sm">
                             Do not have an account?{" "}
-                            <Link href="/auth/signup" className="text-blue-500 hover:underline">
+                            <Link href="/signup" className="text-blue-500 hover:underline">
                                 Sign up
                             </Link>
                         </p>

@@ -7,7 +7,7 @@ import PasswordField from "@/component/PasswordField";
 import Image from "next/image";
 import Link from "next/link";
 import { AiOutlineMail } from "react-icons/ai";
-import { validateEmail, validatePassword } from "../../../../utils/validators";
+import { validateEmail, validatePassword } from "../../../utils/validators";
 
 export default function ForgetPassword() {
   const [step, setStep] = useState<"email" | "otp" | "reset">("email");
@@ -269,7 +269,7 @@ export default function ForgetPassword() {
 
           <p className="mt-6 text-center text-gray-600 text-sm">
             Remember your password?{" "}
-            <Link href="/auth/login" className="text-blue-500 hover:underline">
+            <Link href="/login" className="text-blue-500 hover:underline">
               Log in
             </Link>
           </p>

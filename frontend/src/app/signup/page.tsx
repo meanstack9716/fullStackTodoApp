@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { validateConfirmPassword, validateEmail, validateName, validatePassword, validateUsername } from "../../../../utils/validators";
+import { validateConfirmPassword, validateEmail, validateName, validatePassword, validateUsername } from "../../../utils/validators";
 import { AppDispatch, RootState } from "@/store/store";
 import { resetError, signupUser } from "@/features/authSlice";
 import { AiOutlineMail, AiOutlineUser, AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -190,7 +190,7 @@ export default function Signup() {
 
           <p className="mt-4 text-center text-gray-600 text-sm">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-blue-500 hover:underline">
+            <Link href="/login" className="text-blue-500 hover:underline">
               Log in
             </Link>
           </p>

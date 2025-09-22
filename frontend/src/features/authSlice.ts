@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "../api/axiosInstance";
 import { AuthResponse, SignupData, LoginData, User } from "../types/auth";
+import { AxiosError } from "axios";
 
 //  Signup
 export const signupUser = createAsyncThunk<AuthResponse, SignupData, { rejectValue: string }>(
@@ -12,8 +13,12 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupData, { rejectVal
         localStorage.setItem("token", response.data.token);
       }
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.error || "Signup failed");
+    } catch (error) {
+      let errorMessage = "Signup failed"
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.error || errorMessage;
+      }
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -29,8 +34,12 @@ export const loginUser = createAsyncThunk<AuthResponse, LoginData, { rejectValue
         localStorage.setItem("token", response.data.token);
       }
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.error || "Login failed");
+    } catch (error) {
+      let errorMessage = "Login failed"
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.error || errorMessage;
+      }
+      return rejectWithValue(errorMessage);
     }
   }
 );
