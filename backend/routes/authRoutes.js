@@ -143,7 +143,7 @@ router.post('/reset-password', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ message: "Email not registered" });
 
-        const otpEntry = await Otp.findOne({ userId: user._id, }).sort({ createdAt: -1 });
+        const otpEntry = await Otp.findOne({ userId: user.id, }).sort({ createdAt: -1 });
         if (!otpEntry) return res.status(400).json({ message: "Invalid OTP" });
 
         if (otpEntry.expiresAt < new Date()) return res.status(400).json({ message: "OTP expired" });
@@ -151,11 +151,10 @@ router.post('/reset-password', async (req, res) => {
         const isMatch = await bcrypt.compare(otp, otpEntry.otp);
         if (!isMatch) return res.status(400).json({ message: "Invalid OTP" });
 
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword, salt);
+        user.password = newPassword;
         await user.save();
 
-        await Otp.deleteOne({ _id: otpEntry._id });
+        await Otp.deleteOne({ id: otpEntry.id });
 
         res.json({ message: "Password reset successfully" });
 
