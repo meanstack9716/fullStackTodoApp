@@ -66,98 +66,98 @@ export default function Login() {
 
     return (
         <PublicRoute>
-        <div className="min-h-screen flex flex-col md:flex-row justify-center">
-            <div className="md:w-1/2 hidden md:flex items-center justify-center bg-blue-50 min-h-screen">
-                <div className="text-center">
-                    <Image
-                        src="/images/login.png"
-                        alt="login image"
-                        width={400}
-                        height={300}
-                        className="mx-auto w-3/4 h-auto"
-                    />
-
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Stay Organized</h2>
-                    <p className="text-sm lg:text-base text-gray-600 lg:mx-10">
-                        Achieve more, stress less. <span className="font-bold text-blue-400 cursor-pointer">Log in</span> to your To-Do App and unlock your full productivity potential
-                    </p>
-                </div>
-            </div>
-
-            <div className="md:w-1/2 flex justify-center items-center bg-white">
-                <div className="w-full max-w-md">
-                    <div className="flex flex-col md:hidden justify-center items-center w-full mt-5">
+            <div className="min-h-screen flex flex-col md:flex-row justify-center">
+                <div className="md:w-1/2 hidden md:flex items-center justify-center bg-blue-50 min-h-screen">
+                    <div className="text-center">
                         <Image
-                            src="/images/mobile-login.png"
+                            src="/images/login.png"
                             alt="login image"
-                            width={80}
-                            height={80}
-                            className="mx-auto"
+                            width={400}
+                            height={300}
+                            className="mx-auto w-3/4 h-auto"
                         />
 
-                        <h1 className="text-3xl font-bold text-blue-500 font-serif text-center">
-                            <span className="underline decoration-blue-400 decoration-2 underline-offset-4">
-                                To-Do
-                            </span>
-                            App
-                        </h1>
-                        <p className="text-gray-500 text-sm mt-1">
-                            Your productivity, simplified.
-                        </p>
-                    </div>
-                    <div className="px-5 py-2">
-                        <h1 className="text-4xl font-bold text-gray-900 mb-1 md:mb-4">Welcome Back</h1>
-                        <p className="text-sm text-gray-400 mb-3 md:mb-6">
-                            Login to manage your tasks and stay productive
-                        </p>
-
-                        <form onSubmit={handleLogin} className="space-y-4">
-
-                            <InputField
-                                label="Email"
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="you@example.com"
-                                error={errors.email}
-                                icon={<AiOutlineMail />}
-                            />
-
-                            <PasswordField
-                                label="Password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                placeholder="••••••••"
-                                error={errors.password}
-                            />
-
-                            <div className="text-right">
-                                <Link href="/forget-password" className="text-sm text-blue-500 hover:underline">
-                                    Forgot password?
-                                </Link>
-                            </div>
-
-                            {error && <p className="text-red-500 text-sm mb-2.5 -mt-4">{error}</p>}
-
-                            <Button type="submit"
-                                className="py-2 flex items-center justify-center"
-                                text={
-                                    loading ? (<AiOutlineLoading3Quarters className="animate-spin" />) : ("Sign In")
-                                } disabled={loading} />
-                        </form>
-
-                        <p className="mt-6 text-center text-gray-600 text-sm">
-                            Do not have an account?{" "}
-                            <Link href="/signup" className="text-blue-500 hover:underline">
-                                Sign up
-                            </Link>
+                        <h2 className="text-3xl font-bold text-gray-800 mb-2">Stay Organized</h2>
+                        <p className="text-sm lg:text-base text-gray-600 lg:mx-10">
+                            Achieve more, stress less. <span className="font-bold text-blue-400 cursor-pointer">Log in</span> to your To-Do App and unlock your full productivity potential
                         </p>
                     </div>
                 </div>
+
+                <div className="md:w-1/2 flex justify-center items-center bg-white">
+                    <div className="w-full max-w-md">
+                        <div className="flex flex-col md:hidden justify-center items-center w-full mt-5">
+                            <Image
+                                src="/images/mobile-login.png"
+                                alt="login image"
+                                width={80}
+                                height={80}
+                                className="mx-auto"
+                            />
+
+                            <h1 className="text-3xl font-bold text-blue-500 font-serif text-center">
+                                <span className="underline decoration-blue-400 decoration-2 underline-offset-4">
+                                    To-Do
+                                </span>
+                                App
+                            </h1>
+                            <p className="text-gray-500 text-sm mt-1">
+                                Your productivity, simplified.
+                            </p>
+                        </div>
+                        <div className="px-5 py-2">
+                            <h1 className="text-4xl font-bold text-gray-900 mb-1 md:mb-4">Welcome Back</h1>
+                            <p className="text-sm text-gray-400 mb-3 md:mb-6">
+                                Login to manage your tasks and stay productive
+                            </p>
+
+                            <form onSubmit={handleLogin} className="space-y-4">
+
+                                <InputField
+                                    label="Email"
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="you@example.com"
+                                    error={errors.email}
+                                    icon={<AiOutlineMail />}
+                                />
+
+                                <PasswordField
+                                    label="Password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="••••••••"
+                                    error={errors.password}
+                                />
+
+                                <div className="text-right">
+                                    <Link href="/forget-password" className="text-sm text-blue-500 hover:underline">
+                                        Forgot password?
+                                    </Link>
+                                </div>
+
+                                {error && <p className="text-red-500 text-sm mb-2.5 -mt-4">{error}</p>}
+
+                                <Button type="submit"
+                                    className="py-2 flex items-center justify-center"
+                                    text={
+                                        loading ? (<AiOutlineLoading3Quarters className="animate-spin" />) : ("Sign In")
+                                    } disabled={loading} />
+                            </form>
+
+                            <p className="mt-6 text-center text-gray-600 text-sm">
+                                Do not have an account?{" "}
+                                <Link href="/signup" className="text-blue-500 hover:underline">
+                                    Sign up
+                                </Link>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
         </PublicRoute>
     );
 }
