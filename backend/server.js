@@ -14,8 +14,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const authRoutes = require('./routes/authRoutes');
+const todoRoutes = require('./routes/todoRoutes')
 
-app.use('/user',authRoutes)
+app.use('/user', authRoutes)
+app.use('/todos', todoRoutes)
 
 app.listen(PORT, () => {
       console.log(`Listening on port ${PORT}`);

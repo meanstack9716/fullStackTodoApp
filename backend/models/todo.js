@@ -33,5 +33,6 @@ const todoSchema = new mongoose.Schema(
             default: "Pending"
         },
     },
-     { timestamps: true }
+    { timestamps: true }
 )
+module.exports = mongoose.model("Todo", todoSchema);

@@ -40,4 +40,3 @@ router.get('/', async (req, res) => {
 })
 
 module.exports = router;
-module.exports = mongoose.model("Todo", todoSchema);
