@@ -21,7 +21,7 @@ router.post('/add', async (req, res) => {
             status
         })
         const savedTodo = await newTodo.save();
-        res.status(201).json(savedTodo);
+        res.status(200).json(savedTodo);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' })
@@ -70,7 +70,7 @@ router.put('/edit/:id', async (req, res) => {
         if (!updatedTodo) {
             return res.status(404).json({ message: "Todo not found " })
         }
-        res.json(updatedTodo)
+        res.status(200).json(updatedTodo)
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' })
@@ -85,7 +85,7 @@ router.delete('/delete/:id', async (req, res) => {
         if (!deletedTodo) {
             return res.status(404).json({ message: 'Todo not found' });
         }
-        res.status(400).json({ message: "Todo deleted successfully", deletedTodo });
+        res.status(200).json({ message: "Todo deleted successfully", deletedTodo });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' })
