@@ -30,9 +30,21 @@ router.post('/add', async (req, res) => {
 
 // all todos api
 router.get('/', async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     try {
-        const todos = await Todo.find().sort({ date: -1 });
-        res.json(todos);
+        const totalTodos = await Todo.countDocuments();
+        const todos = await Todo.find().sort({ date: -1 }).skip(skip).limit(limit);
+        res.json({
+            todos,
+            currentPage: page,
+            totalPage: Math.ceil(totalTodos / limit),
+            totalTodos,
+            hasNextPage:page*limit < totalTodos,
+            hasPreviousPage:page>1
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' })
