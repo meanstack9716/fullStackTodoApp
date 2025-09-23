@@ -42,8 +42,8 @@ router.get('/', async (req, res) => {
             currentPage: page,
             totalPage: Math.ceil(totalTodos / limit),
             totalTodos,
-            hasNextPage:page*limit < totalTodos,
-            hasPreviousPage:page>1
+            hasNextPage: page * limit < totalTodos,
+            hasPreviousPage: page > 1
         });
     } catch (err) {
         console.error(err);
