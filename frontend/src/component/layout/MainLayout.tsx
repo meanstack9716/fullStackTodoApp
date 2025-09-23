@@ -2,6 +2,7 @@
 import React from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import ProtectedRoute from "../ProtectedRoute";
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -11,6 +12,7 @@ interface MainLayoutProps {
 export default function MainLayout({ children, title = "Dashboard" }: MainLayoutProps) {
 
     return (
+          <ProtectedRoute>
         <div className="h-screen flex flex-col">
             {/* Header */}
             <Header title={title} />
@@ -25,5 +27,6 @@ export default function MainLayout({ children, title = "Dashboard" }: MainLayout
                 <main className="flex-1 bg-gray-50 ">{children}</main>
             </div>
         </div>
+        </ProtectedRoute>
     );
 }

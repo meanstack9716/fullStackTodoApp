@@ -1,8 +1,11 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import PublicRoute from "@/component/PublicRoute";
 
 export default function Home() {
   return (
+    <PublicRoute>
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-8">
       <div className="mb-8">
         <Image
@@ -45,5 +48,6 @@ export default function Home() {
         Small steps every day lead to big achievements ❤️.
       </div>
     </div>
+    </PublicRoute>
   );
 }

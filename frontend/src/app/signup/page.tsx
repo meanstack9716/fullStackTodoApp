@@ -7,11 +7,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { validateConfirmPassword, validateEmail, validateName, validatePassword, validateUsername } from "../../../utils/validators";
 import { AppDispatch, RootState } from "@/store/store";
-import { resetError, signupUser } from "@/features/authSlice";
+import { signupUser } from "@/features/authSlice";
 import { AiOutlineMail, AiOutlineUser, AiOutlineLoading3Quarters } from "react-icons/ai";
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import PasswordField from "@/component/PasswordField";
+import PublicRoute from "@/component/PublicRoute";
 
 export default function Signup() {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,9 +28,7 @@ export default function Signup() {
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  useEffect(() => {
-    dispatch(resetError());
-  }, [dispatch]);
+
   const validators: { [key: string]: (val: string) => string | null } = {
     firstName: (val) => validateName(val, "First Name"),
     lastName: (val) => validateName(val, "Last Name"),
@@ -96,6 +95,7 @@ export default function Signup() {
   };
 
   return (
+    <PublicRoute>
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="md:w-1/2 flex items-center justify-center bg-white px-5 lg:px-0 py-5">
         <div className="w-full max-w-md">
@@ -214,5 +214,6 @@ export default function Signup() {
         </div>
       </div>
     </div>
+    </PublicRoute>
   );
 }

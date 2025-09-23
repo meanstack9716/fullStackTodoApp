@@ -2,16 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { validateEmail } from "../../../utils/validators";
 import { useRouter } from "next/navigation";
 import Button from "@/component/Button";
 import InputField from "@/component/InputField";
 import PasswordField from "@/component/PasswordField";
-import { loginUser, resetError } from "@/features/authSlice";
+import { loginUser } from "@/features/authSlice";
 import { AppDispatch, RootState } from "@/store/store";
 import { AiOutlineLoading3Quarters, AiOutlineMail } from "react-icons/ai";
+import PublicRoute from "@/component/PublicRoute";
 
 export default function Login() {
     const dispatch = useDispatch<AppDispatch>();
@@ -19,7 +20,6 @@ export default function Login() {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
     const router = useRouter();
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -64,16 +64,8 @@ export default function Login() {
 
     };
 
-    useEffect(() => {
-        dispatch(resetError());
-        const token = localStorage.getItem("token");
-        if (token) {
-            router.replace("/pages/dashboard");
-        }
-    }, [dispatch, router]);
-
-
     return (
+        <PublicRoute>
         <div className="min-h-screen flex flex-col md:flex-row justify-center">
             <div className="md:w-1/2 hidden md:flex items-center justify-center bg-blue-50 min-h-screen">
                 <div className="text-center">
@@ -166,5 +158,6 @@ export default function Login() {
                 </div>
             </div>
         </div>
+        </PublicRoute>
     );
 }
