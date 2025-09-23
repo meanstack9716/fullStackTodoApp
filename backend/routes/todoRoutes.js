@@ -51,4 +51,45 @@ router.get('/', async (req, res) => {
     }
 })
 
+//edit todo api
+router.put('/edit/:id', async (req, res) => {
+    try {
+        const errors = validateTodo(req.body);
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({ errors });
+        }
+
+        const { title, description, date, priority, expireAt } = req.body;
+        const status = expireAt && new Date(expireAt) < new Date() ? "Expired" : "Pending";
+
+        const updatedTodo = await Todo.findByIdAndUpdate(
+            req.params.id,
+            { title, description, date, priority, expireAt, status },
+            { new: true }
+        );
+        if (!updatedTodo) {
+            return res.status(404).json({ message: "Todo not found " })
+        }
+        res.json(updatedTodo)
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' })
+    }
+})
+
+//delete todo api 
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedTodo = await Todo.findByIdAndDelete(id);
+        if (!deletedTodo) {
+            return res.status(404).json({ message: 'Todo not found' });
+        }
+        res.status(400).json({ message: "Todo deleted successfully", deletedTodo });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' })
+    }
+})
+
 module.exports = router;
