@@ -11,7 +11,6 @@ import AddEditTodoModalProps from "@/interface/AddEditToDoModalProps";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { addTodo, editTodo } from "@/features/todoSlice";
-import Button from "@/component/Button";
 
 const RichTextEditor = dynamic(() => import("@/component/RichTextEditor"), {
     ssr: false,
@@ -133,11 +132,13 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
             <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 px-6 py-4 relative overflow-y-auto max-h-[90vh]">
                 {/* Close */}
-                <Button
+                <button
                     onClick={handleClose}
                     className="absolute top-7 right-7 text-sm text-black font-medium hover:underline cursor-pointer"
-                    text="Go Back"
-                />
+                >
+                    Go Back
+                </button>
+
                 {/* Heading */}
                 <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-700">
                     {task ? (
@@ -230,10 +231,11 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
 
                     {/* Submit */}
                     <div className="flex justify-end">
-                        <Button
+                        <button
                             type="submit"
                             className="px-5 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 cursor-pointer"
-                            text={loading ? (
+                        >
+                            {loading ? (
                                 <AiOutlineLoading3Quarters className="animate-spin" />
                             ) : task ? (
                                 "Update"
@@ -241,7 +243,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                                 "Add"
                             )}
 
-                        />
+                        </button>
                     </div>
                 </form>
             </div>
