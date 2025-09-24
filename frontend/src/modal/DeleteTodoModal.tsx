@@ -1,7 +1,11 @@
 'use client';
 import React from "react";
-import { RxCross2 } from "react-icons/rx";
 import DeleteToDoModalProps from "@/interface/DeleteToDoModalProps";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { RxCross2 } from "react-icons/rx";
+import Button from "@/component/Button";
 
 export default function DeleteToDoModal({
     isOpen,
@@ -10,16 +14,15 @@ export default function DeleteToDoModal({
     taskTitle,
 }: DeleteToDoModalProps) {
     if (!isOpen) return null;
-
+    const { loading, error } = useSelector((state: RootState) => state.todos);
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
             <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 px-6 py-4 relative">
-                <button
+                <Button
                     onClick={onClose}
                     className="absolute top-5 right-5 text-sm text-gray-600 hover:text-gray-900"
-                >
-                    <RxCross2 className="w-5 h-5 cursor-pointer" />
-                </button>
+                    text={<RxCross2 className="w-5 h-5 cursor-pointer" />}
+                />
 
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
                     Delete Task
@@ -34,18 +37,17 @@ export default function DeleteToDoModal({
                 </p>
 
                 <div className="flex justify-end gap-3">
-                    <button
+                    <Button
                         onClick={onClose}
                         className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-300 cursor-pointer"
-                    >
-                        Cancel
-                    </button>
-                    <button
+                        text="Cancel"
+                    />
+                    <Button
                         onClick={onConfirm}
                         className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 cursor-pointer"
-                    >
-                        Delete
-                    </button>
+                        text={loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : "Delete"}
+                    />
+
                 </div>
             </div>
         </div>

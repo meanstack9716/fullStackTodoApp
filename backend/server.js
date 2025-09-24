@@ -2,6 +2,7 @@ const express = require('express')
 const app = express();
 const db = require('./db');
 const cors = require("cors");
+const startExpireCron = require('./cronJobs/expireTodos');
 
 require('dotenv').config();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ const todoRoutes = require('./routes/todoRoutes')
 
 app.use('/user', authRoutes)
 app.use('/todos', todoRoutes)
+startExpireCron();
 
 app.listen(PORT, () => {
       console.log(`Listening on port ${PORT}`);

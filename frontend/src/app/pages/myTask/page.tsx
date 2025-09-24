@@ -1,70 +1,106 @@
 'use client'
 import { useEffect, useState } from "react";
 import MainLayout from "@/component/layout/MainLayout";
-import { Task } from "@/interface/Task";
-import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
+import { FaRegEdit, FaRegTrashAlt, FaCheckCircle } from "react-icons/fa";
 import { format } from "date-fns";
 import DeleteToDoModal from "@/modal/DeleteTodoModal";
 import AddEditTodoModal from "@/modal/AddEditTodoModal";
 import { countDown } from "../../../../utils/countDown";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { Todo } from "@/types/todo";
+import { deleteTodo, editTodo, fetchTodos } from "@/features/todoSlice";
 
 export default function MyTasks() {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const dispatch = useDispatch<AppDispatch>();
+    const { todos, loading, error, hasNextPage } = useSelector((state: RootState) => state.todos);
+    const [selectedTask, setSelectedTask] = useState<Todo | null>(null);
     const [activeModal, setActiveModal] = useState<null | "delete" | "edit">(null);
-    const timeLeft = countDown(selectedTask?.expireAt);
+    const [page, setPage] = useState(1);
+    const timeLeft = countDown(selectedTask?.expireAt, selectedTask?.status);
 
     useEffect(() => {
-        try {
-            const storedTasks = JSON.parse(localStorage.getItem("tasks") || "[]") as Task[];
-            const validTasks = storedTasks.filter(task => task.title && task.date && task.priority);
-            const sortedTasks = validTasks.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            setTasks(sortedTasks);
-            if (sortedTasks.length > 0) setSelectedTask(sortedTasks[0]);
-        } catch (error) {
-            console.error("Error loading tasks from localStorage", error);
-            setTasks([]);
-        }
-    }, [])
+        dispatch(fetchTodos({ page, limit: 10 }));
+    }, [dispatch, page]);
 
-    const handleDelete = () => {
+    useEffect(() => {
+        if (todos.length > 0) {
+            setSelectedTask(todos[0]);
+        }
+    }, [todos]);
+
+    const handleDelete = async () => {
         if (!selectedTask) return;
-        const updatedTasks = tasks.filter(t => t.id !== selectedTask.id);
-        setTasks(updatedTasks);
-        localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-        setSelectedTask(updatedTasks.length > 0 ? updatedTasks[0] : null);
-        setActiveModal(null);
+        try {
+            await dispatch(deleteTodo(selectedTask._id)).unwrap()
+            setActiveModal(null);
+        } catch (err) {
+            console.error("Delete failed:", err);
+        }
     }
 
-    const handleSave = (updatedTask: Task) => {
-        const updatedTasks = tasks.map(t => t.id === updatedTask.id ? updatedTask : t);
-        setTasks(updatedTasks);
-        localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    const handleSave = (updatedTask: Todo) => {
         setSelectedTask(updatedTask);
         setActiveModal(null)
     }
 
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+        if (scrollTop + clientHeight >= scrollHeight - 5 && !loading && hasNextPage) {
+            setPage(prev => prev + 1);
+        }
+    };
+
+    const handleComplete = async (task: Todo) => {
+        if (!task) return;
+        try {
+            const updatedTask = await dispatch(
+                editTodo({
+                    id: task._id,
+                    todoData: {
+                        title: task.title,
+                        description: task.description,
+                        date: task.date,
+                        priority: task.priority,
+                        expireAt: task.expireAt,
+                        completed: true,
+                        status: "Completed"
+                    }
+                })
+            ).unwrap();
+
+            setSelectedTask(updatedTask);
+        } catch (err) {
+            console.error("Failed to complete task:", err);
+        }
+    }
+
+
     return (
         <MainLayout title="To-Do">
-            <div className="flex flex-col lg:flex-row max-h-screen gap-5 p-3 lg:p-4 xl:p-6">
+            <div className="flex flex-col lg:flex-row h-screen gap-5 p-3 lg:p-4 xl:p-6">
 
                 {/* Left Column - Task List */}
-                <div className="w-full lg:max-w-xs xl:max-w-sm rounded-md shadow-sm border-1 border-gray-200 overflow-y-auto p-2 lg:p-4 min-h-0">
+                <div className="w-full lg:max-w-xs xl:max-w-sm rounded-md shadow-sm border border-gray-200 overflow-y-auto p-2 lg:p-4 flex-1"
+                    onScroll={handleScroll}>
                     <h2 className="text-xl font-semibold mb-4 text-blue-950 cursor-pointer"><span className="underline  decoration-2 underline-offset-2"><span className="text-4xl text-blue-500 font-[cursive]">M</span>y</span> Tasks 📌</h2>
 
-                    {tasks.length === 0 ? (
+                    {error && (
+                        <p className="text-red-500 text-sm mb-2">⚠️ {error}</p>
+                    )}
+                    {todos.length === 0 ? (
                         <>
                             <p className="text-gray-500 font-bold -mt-3">✍🏻 No tasks added yet.</p>
                             <p className="text-gray-600 text-sm">Click on add task button and add some tasks</p>
                         </>
                     ) : (
                         <div className="flex flex-col gap-4">
-                            {tasks.map((task) => (
+                            {todos.map((task, index) => (
                                 <div
-                                    key={task.id}
+                                    key={`${task._id}-${index}`}
                                     onClick={() => setSelectedTask(task)}
                                     className={`rounded-md p-3 border cursor-pointer transition hover:bg-blue-50
-                                        ${selectedTask?.id === task.id
+                                        ${selectedTask?._id === task._id
                                             ? 'border-blue-500 bg-blue-100'
                                             : 'border-gray-200 bg-white'}
                                     `}
@@ -89,9 +125,7 @@ export default function MyTasks() {
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs font-medium ${task.status === 'Completed'
                                                 ? 'bg-green-100 text-green-600'
-                                                : task.status === 'In Progress'
-                                                    ? 'bg-blue-100 text-blue-600'
-                                                    : 'bg-gray-100 text-gray-600'
+                                                : 'bg-gray-100 text-gray-600'
                                                 }`}
                                         >
                                             {task.status}
@@ -105,7 +139,7 @@ export default function MyTasks() {
                 </div>
 
                 {/* Right Column - Task Details */}
-                <div className="flex flex-col flex-1 rounded-md shadow-sm border-1 border-gray-200 overflow-auto p-2 lg:p-4 min-h-0">
+                <div className="flex flex-col w-full lg:flex-1 rounded-md shadow-sm border-1 border-gray-200 overflow-auto p-2 lg:p-4">
                     {selectedTask ? (
                         <div className="flex flex-col h-full">
                             <div>
@@ -144,6 +178,14 @@ export default function MyTasks() {
                                 <button onClick={() => setActiveModal("edit")} className="bg-blue-500 text-white px-3 py-3 rounded hover:bg-blue-600 transition cursor-pointer">
                                     <FaRegEdit />
                                 </button>
+                                {selectedTask.status !== "Completed" && (
+                                    <button
+                                        onClick={() => handleComplete(selectedTask)}
+                                        className="bg-green-500 text-white px-3 py-3 rounded hover:bg-green-600 transition cursor-pointer"
+                                    >
+                                        <FaCheckCircle />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ) : (

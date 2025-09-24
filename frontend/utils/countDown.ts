@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 
-export function countDown(expireAt?: string) {
+export function countDown(expireAt?: string, status?: string) {
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    if (!expireAt) return;
+    if (!expireAt || status === "Completed") {
+      setTimeLeft(status === "Completed" ? "Completed" : "");
+      return;
+    }
 
     const interval = setInterval(() => {
       const diff = new Date(expireAt).getTime() - new Date().getTime();
@@ -20,7 +23,7 @@ export function countDown(expireAt?: string) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [expireAt]);
+  }, [expireAt, status]);
 
   return timeLeft;
 }

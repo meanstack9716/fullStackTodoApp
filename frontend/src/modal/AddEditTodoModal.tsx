@@ -1,20 +1,25 @@
 'use client';
 import React, { useRef, useState, useEffect } from "react";
 import { IoIosCalendar } from "react-icons/io";
-import { AiOutlineCalendar } from "react-icons/ai";
+import { AiOutlineCalendar, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { BiTask } from "react-icons/bi";
 import dynamic from "next/dynamic";
 import InputField from "@/component/InputField";
-import { Task } from "@/interface/Task";
 import { RichTextEditorHandle } from "@/component/RichTextEditor";
 import { validateDate, validateDescription, validateExpireAt, validatePriority, validateTitle } from "../../utils/validators";
 import AddEditTodoModalProps from "@/interface/AddEditToDoModalProps";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { addTodo, editTodo } from "@/features/todoSlice";
+import Button from "@/component/Button";
 
 const RichTextEditor = dynamic(() => import("@/component/RichTextEditor"), {
     ssr: false,
 });
 
 export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddEditTodoModalProps) {
+    const dispatch = useDispatch<AppDispatch>();
+    const { loading, error } = useSelector((state: RootState) => state.todos);
     const [formData, setFormData] = useState({
         title: "",
         date: "",
@@ -34,9 +39,9 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         if (task) {
             setFormData({
                 title: task.title,
-                date: task.date,
+                date: task.date ? new Date(task.date).toISOString().slice(0, 16) : "",
                 priority: task.priority,
-                expireAt: task.expireAt || ""
+                expireAt: task.expireAt ? new Date(task.expireAt).toISOString().slice(0, 16) : ""
             });
         } else {
             resetForm();
@@ -50,13 +55,15 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
         const newErrors: { [key: string]: string } = {};
         const { title, date, priority } = formData;
         const rawDesc = descriptionRef.current?.getContent() || '';
-        const description = rawDesc
+        const description = rawDesc;
         const plainText = description.replace(/<(.|\n)*?>/g, '').trim();
+
         const titleError = validateTitle(title);
         const dateError = validateDate(date);
         const expireAtError = validateExpireAt(formData.expireAt, date);
@@ -74,27 +81,51 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
             return;
         }
 
-        const updatedTask: Task = {
-            id: task?.id || Date.now(),
-            title,
-            date,
-            priority: priority as "Extreme" | "Moderate" | "Low",
-            description,
-            completed: task?.completed || false,
-            expireAt: formData.expireAt,
-            status:
-                formData.expireAt && new Date(formData.expireAt) < new Date()
-                    ? "Expired"
-                    : task?.status || "Pending",
-        };
-        console.log(updatedTask)
-        onSave(updatedTask);
-        resetForm();
-        onClose();
+        try {
+            if (!task) {
+                // Add new todo
+                await dispatch(addTodo({
+                    title,
+                    description,
+                    date,
+                    priority: priority as "Extreme" | "Moderate" | "Low",
+                    expireAt: formData.expireAt || undefined
+                })).unwrap();
+            } else {
+                // Edit  todo
+                await dispatch(editTodo({
+                    id: task._id,
+                    todoData: {
+                        title,
+                        description,
+                        date,
+                        priority: priority as "Extreme" | "Moderate" | "Low",
+                        expireAt: formData.expireAt || undefined
+                    }
+                })).unwrap();
+            }
+
+            resetForm();
+            onClose();
+            if (onSave && task) {
+                onSave({
+                    ...task,
+                    title,
+                    description,
+                    date,
+                    priority: priority as "Extreme" | "Moderate" | "Low",
+                    expireAt: formData.expireAt || undefined
+                });
+            }
+
+        } catch (err) {
+            console.error(task ? "Failed to edit todo:" : "Failed to add todo:", err);
+        }
     };
 
+
     const handleClose = () => {
-        resetForm(); 
+        resetForm();
         onClose();
     };
 
@@ -102,13 +133,11 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
             <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 px-6 py-4 relative overflow-y-auto max-h-[90vh]">
                 {/* Close */}
-                <button
+                <Button
                     onClick={handleClose}
                     className="absolute top-7 right-7 text-sm text-black font-medium hover:underline cursor-pointer"
-                >
-                    Go Back
-                </button>
-
+                    text="Go Back"
+                />
                 {/* Heading */}
                 <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-700">
                     {task ? (
@@ -195,15 +224,24 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                             <p className="text-red-500 text-xs mt-1">{errors.description}</p>
                         )}
                     </div>
+                    {error && (
+                        <p className="text-red-500 text-sm mb-2">⚠️ {error}</p>
+                    )}
 
                     {/* Submit */}
                     <div className="flex justify-end">
-                        <button
+                        <Button
                             type="submit"
                             className="px-5 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 cursor-pointer"
-                        >
-                            {task ? "Update" : "Add"}
-                        </button>
+                            text={loading ? (
+                                <AiOutlineLoading3Quarters className="animate-spin" />
+                            ) : task ? (
+                                "Update"
+                            ) : (
+                                "Add"
+                            )}
+
+                        />
                     </div>
                 </form>
             </div>
