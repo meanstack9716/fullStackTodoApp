@@ -6,7 +6,6 @@ import { FiMenu } from "react-icons/fi";
 import Button from "../Button";
 import Sidebar from "./Sidebar";
 import AddEditTodoModal from "@/modal/AddEditTodoModal";
-import { saveTaskToLocalStorage } from "../../../utils/localStorage";
 
 export default function Header({ title = "Dashboard" }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -51,9 +50,6 @@ export default function Header({ title = "Dashboard" }) {
                 isOpen={isTaskModalOpen}
                 onClose={() => setIsTaskModalOpen(false)}
                 task={null} 
-                onSave={(task) => {
-                    saveTaskToLocalStorage(task);
-                }}
             />
         </>
     );

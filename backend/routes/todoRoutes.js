@@ -59,12 +59,12 @@ router.put('/edit/:id', async (req, res) => {
             return res.status(400).json({ errors });
         }
 
-        const { title, description, date, priority, expireAt } = req.body;
-        const status = expireAt && new Date(expireAt) < new Date() ? "Expired" : "Pending";
+        const { title, description, date, priority, expireAt, completed, status } = req.body;
+        const updatedStatus = status || (expireAt && new Date(expireAt) < new Date() ? "Expired" : "Pending");
 
         const updatedTodo = await Todo.findByIdAndUpdate(
             req.params.id,
-            { title, description, date, priority, expireAt, status },
+            { title, description, date, priority, expireAt, status: updatedStatus, completed },
             { new: true }
         );
         if (!updatedTodo) {

@@ -1,27 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
 import MainLayout from "@/component/layout/MainLayout";
-import { Task } from "@/interface/Task";
 import { format, isToday } from "date-fns";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { fetchTodos } from "@/features/todoSlice";
 
 export default function Dashboard() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const { todos, loading, error } = useSelector((state: RootState) => state.todos);
 
   useEffect(() => {
-    const storedTasks = JSON.parse(localStorage.getItem("tasks") || "[]") as Task[];
-    setTasks(storedTasks);
-  }, []);
+    dispatch(fetchTodos({ page: 1, limit: 10 }));
+  }, [dispatch]);
 
   // Split tasks
-  const upcomingTasks = tasks
-    .filter((task) => task.status !== "Completed") 
+  const upcomingTasks = todos
+    .filter((todo) => todo.status !== "Completed")
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 3);
 
-  const completedToday = tasks
-    .filter((task) => task.status === "Completed" && isToday(new Date(task.date))) 
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  const completedToday = todos
+    .filter((todo) => todo.status === "Completed" && isToday(new Date(todo.updatedAt)))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 3);
 
   return (
@@ -38,18 +40,18 @@ export default function Dashboard() {
           {/* Upcoming Tasks */}
           <div className="bg-gray-50 p-4 rounded-lg shadow">
             <h2 className="text-lg font-semibold text-blue-600 mb-2">
-             👇🏻 Upcoming Tasks
+              👇🏻 Upcoming Tasks
             </h2>
             {upcomingTasks.length === 0 ? (
               <p className="text-gray-500"> ✍🏻 No upcoming tasks.</p>
             ) : (
               <ul className="space-y-3">
                 {upcomingTasks.map((task) => (
-                  <li key={task.id} className="p-3 bg-white rounded-lg shadow">
-                    <p className="font-bold text-blue-700 uppercase">{task.title}</p>
+                  <li key={task._id} className="p-3 bg-white rounded-lg shadow">
+                    <p className="font-bold text-black capitalize">{task.title}</p>
                     <p className="text-sm text-gray-500">
                       <span className="font-semibold">Expires : </span>
-                      {task.expireAt  
+                      {task.expireAt
                         ? format(new Date(task.expireAt), "yyyy-MM-dd HH:mm")
                         : "No expiry"}
                     </p>
@@ -72,10 +74,8 @@ export default function Dashboard() {
                         <span
                           className={`${task.status === "Pending"
                             ? "text-blue-600"
-                            : task.status === "In Progress"
-                              ? "text-yellow-400" :
-                              task.status === "Expired" ? "text-red-600"
-                                : "text-green-500"
+                            : task.status === "Expired" ? "text-red-600"
+                              : "text-green-500"
                             }`}
                         >
                           {task.status}
@@ -93,19 +93,19 @@ export default function Dashboard() {
           {/* Completed Today */}
           <div className="bg-gray-50 p-4 rounded-lg shadow">
             <h2 className="text-lg font-semibold text-green-600 mb-2">
-             ✅ Completed Today
+              ✅ Completed Today
             </h2>
             {completedToday.length === 0 ? (
               <p className="text-gray-500">No tasks completed today.</p>
             ) : (
               <ul className="space-y-3">
                 {completedToday.map((task) => (
-                  <li key={task.id} className="p-3 bg-white rounded-lg shadow">
+                  <li key={task._id} className="p-3 bg-white rounded-lg shadow">
                     <p className="font-semibold text-green-700 uppercase mb-1">
                       {task.title}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Completed at: {format(new Date(task.date), "HH:mm")}
+                      Completed at: {format(new Date(task.updatedAt), "hh:mm a")}
                     </p>
                   </li>
                 ))}
@@ -113,7 +113,7 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-        {tasks.length > 0 && (
+        {todos.length > 0 && (
           <div className="mt-4 text-right px-3">
             <Link
               href="/pages/myTask"
