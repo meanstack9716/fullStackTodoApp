@@ -19,6 +19,7 @@ export default function ForgetPassword() {
   const { loading, error } = useSelector((state: RootState) => state.auth);
   const router = useRouter()
   const [step, setStep] = useState<"email" | "otp" | "reset">("email");
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
 
   const [formData, setFormData] = useState({
     email: "",
@@ -49,15 +50,19 @@ export default function ForgetPassword() {
       formattedValue = value.trim().toLowerCase();
     }
     setFormData((prev) => ({ ...prev, [name]: formattedValue }));
+  };
 
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
     let error = "";
-    if (name === "email") error = validateEmail(formattedValue) ?? "";
+    if (name === "email") error = validateEmail(value) ?? "";
     if (name === "password") error = validatePassword(value) ?? "";
     if (name === "confirmPassword")
       error = value !== formData.password ? "Passwords do not match" : "";
 
     setErrors((prev) => ({ ...prev, [name]: error }));
-  };
+  }
 
   const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -217,6 +222,7 @@ export default function ForgetPassword() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="you@example.com"
                   error={errors.email}
                   icon={<AiOutlineMail />}
@@ -261,6 +267,7 @@ export default function ForgetPassword() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="••••••••"
                     error={errors.password}
                   />
@@ -269,6 +276,7 @@ export default function ForgetPassword() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="••••••••"
                     error={errors.confirmPassword}
                   />

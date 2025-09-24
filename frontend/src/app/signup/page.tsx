@@ -28,6 +28,7 @@ export default function Signup() {
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
 
   const validators: { [key: string]: (val: string) => string | null } = {
     firstName: (val) => validateName(val, "First Name"),
@@ -42,18 +43,24 @@ export default function Signup() {
     const { name, value } = e.target;
 
     setFormData((prev) => ({ ...prev, [name]: value }));
-    const error = validators[name] ? validators[name](value) || "" : "";
-
-    setErrors((prev) => {
-      const newErrors = { ...prev, [name]: error };
-
-      if (name === "password" && formData.confirmPassword) {
-        newErrors.confirmPassword = validateConfirmPassword(value, formData.confirmPassword) || "";
-      }
-
-      return newErrors;
-    });
   };
+
+  const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    let error = "";
+    if (validators[name]) {
+      error = validators[name](value) || "";
+      if (name === "password" && formData.confirmPassword) {
+        setErrors((prev) => ({
+          ...prev,
+          confirmPassword: validateConfirmPassword(value, formData.confirmPassword) || "",
+        }));
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +125,7 @@ export default function Signup() {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Enter your first name "
                 error={errors.firstName}
                 icon={<AiOutlineUser />}
@@ -129,6 +137,7 @@ export default function Signup() {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="Enter your last name"
                 error={errors.lastName}
                 icon={<AiOutlineUser />}
@@ -140,6 +149,7 @@ export default function Signup() {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="test12"
                 error={errors.username}
                 icon={<AiOutlineUser />}
@@ -151,6 +161,7 @@ export default function Signup() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="you@example.com"
                 error={errors.email}
                 icon={<AiOutlineMail />}
@@ -161,6 +172,7 @@ export default function Signup() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="••••••••"
                 error={errors.password}
               />
@@ -170,6 +182,7 @@ export default function Signup() {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 placeholder="••••••••"
                 error={errors.confirmPassword}
               />
