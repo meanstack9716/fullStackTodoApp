@@ -17,12 +17,12 @@ export default function Dashboard() {
 
   // Split tasks
   const upcomingTasks = todos
-    .filter((task) => task.status !== "Completed")
+    .filter((todo) => todo.status !== "Completed")
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 3);
 
   const completedToday = todos
-    .filter((task) => task.status === "Completed" && isToday(new Date(task.updatedAt)))
+    .filter((todo) => todo.status === "Completed" && isToday(new Date(todo.updatedAt)))
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 3);
 

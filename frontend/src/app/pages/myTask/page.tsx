@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/component/layout/MainLayout";
 import { FaRegEdit, FaRegTrashAlt, FaCheckCircle } from "react-icons/fa";
 import { format } from "date-fns";
-import DeleteToDoModal from "@/modal/DeleteTodoModal";
 import AddEditTodoModal from "@/modal/AddEditTodoModal";
 import { countDown } from "../../../../utils/countDown";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { Todo } from "@/types/todo";
 import { deleteTodo, editTodo, fetchTodos } from "@/features/todoSlice";
+import ConfirmModal from "@/modal/DeleteTodoModal";
+import { toast } from "react-toastify";
 
 export default function MyTasks() {
     const dispatch = useDispatch<AppDispatch>();
@@ -33,9 +34,11 @@ export default function MyTasks() {
         if (!selectedTask) return;
         try {
             await dispatch(deleteTodo(selectedTask._id)).unwrap()
+            toast.success("Task deleted successfully!");
             setActiveModal(null);
         } catch (err) {
             console.error("Delete failed:", err);
+            toast.error("Failed to delete task");
         }
     }
 
@@ -68,7 +71,7 @@ export default function MyTasks() {
                     }
                 })
             ).unwrap();
-
+            toast.success("Task completed ")
             setSelectedTask(updatedTask);
         } catch (err) {
             console.error("Failed to complete task:", err);
@@ -85,13 +88,13 @@ export default function MyTasks() {
                     onScroll={handleScroll}>
                     <h2 className="text-xl font-semibold mb-4 text-blue-950 cursor-pointer"><span className="underline  decoration-2 underline-offset-2"><span className="text-4xl text-blue-500 font-[cursive]">M</span>y</span> Tasks 📌</h2>
 
-                    {error && (
-                        <p className="text-red-500 text-sm mb-2">⚠️ {error}</p>
-                    )}
                     {todos.length === 0 ? (
                         <>
                             <p className="text-gray-500 font-bold -mt-3">✍🏻 No tasks added yet.</p>
                             <p className="text-gray-600 text-sm">Click on add task button and add some tasks</p>
+                            {error && (
+                                <p className="text-red-500 text-sm my-2">⚠️ {error}</p>
+                            )}
                         </>
                     ) : (
                         <div className="flex flex-col gap-4">
@@ -193,12 +196,16 @@ export default function MyTasks() {
                     )}
                 </div>
             </div>
-            <DeleteToDoModal
+            <ConfirmModal
                 isOpen={activeModal === "delete"}
                 onClose={() => setActiveModal(null)}
                 onConfirm={handleDelete}
-                taskTitle={selectedTask?.title}
+                title="Delete Task"
+                message={`Are you sure you want to delete "${selectedTask?.title}" ? This action cannot be undone.`}
+                confirmText="Delete"
+                loading={loading}
             />
+
 
             {selectedTask && (
                 <AddEditTodoModal

@@ -19,8 +19,8 @@ const todoRoutes = require('./routes/todoRoutes')
 
 app.use('/user', authRoutes)
 app.use('/todos', todoRoutes)
-startExpireCron();
 
 app.listen(PORT, () => {
       console.log(`Listening on port ${PORT}`);
+      startExpireCron();
 })

@@ -11,6 +11,8 @@ import AddEditTodoModalProps from "@/interface/AddEditToDoModalProps";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { addTodo, editTodo } from "@/features/todoSlice";
+import ConfirmModal from "./DeleteTodoModal";
+import { toast } from "react-toastify";
 
 const RichTextEditor = dynamic(() => import("@/component/RichTextEditor"), {
     ssr: false,
@@ -19,6 +21,7 @@ const RichTextEditor = dynamic(() => import("@/component/RichTextEditor"), {
 export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddEditTodoModalProps) {
     const dispatch = useDispatch<AppDispatch>();
     const { loading, error } = useSelector((state: RootState) => state.todos);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [formData, setFormData] = useState({
         title: "",
         date: "",
@@ -54,6 +57,60 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
     };
 
+    const handleAdd = async () => {
+        try {
+            const { title, date, priority, expireAt } = formData;
+            const description = descriptionRef.current?.getContent() || "";
+
+            await dispatch(addTodo({
+                title,
+                description,
+                date,
+                priority: priority as "Extreme" | "Moderate" | "Low",
+                expireAt: expireAt || undefined
+            })).unwrap();
+            toast.success("Task added successfully!");
+            resetForm();
+            onClose();
+        } catch (err) {
+            toast.error("Failed to add task");
+        }
+    }
+
+    const handleEdit = async () => {
+        if (!task) return;
+        try {
+            const { title, date, priority, expireAt } = formData;
+            const description = descriptionRef.current?.getContent() || "";
+
+            await dispatch(editTodo({
+                id: task._id,
+                todoData: {
+                    title,
+                    description,
+                    date,
+                    priority: priority as "Extreme" | "Moderate" | "Low",
+                    expireAt: expireAt || undefined
+                }
+            })).unwrap();
+
+            resetForm();
+            onClose();
+            if (onSave) {
+                onSave({
+                    ...task,
+                    title,
+                    description,
+                    date,
+                    priority: priority as "Extreme" | "Moderate" | "Low",
+                    expireAt: expireAt || undefined
+                });
+            }
+        } catch (err) {
+            toast.error("Failed to update task");
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -80,48 +137,12 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
             return;
         }
 
-        try {
-            if (!task) {
-                // Add new todo
-                await dispatch(addTodo({
-                    title,
-                    description,
-                    date,
-                    priority: priority as "Extreme" | "Moderate" | "Low",
-                    expireAt: formData.expireAt || undefined
-                })).unwrap();
-            } else {
-                // Edit  todo
-                await dispatch(editTodo({
-                    id: task._id,
-                    todoData: {
-                        title,
-                        description,
-                        date,
-                        priority: priority as "Extreme" | "Moderate" | "Low",
-                        expireAt: formData.expireAt || undefined
-                    }
-                })).unwrap();
-            }
-
-            resetForm();
-            onClose();
-            if (onSave && task) {
-                onSave({
-                    ...task,
-                    title,
-                    description,
-                    date,
-                    priority: priority as "Extreme" | "Moderate" | "Low",
-                    expireAt: formData.expireAt || undefined
-                });
-            }
-
-        } catch (err) {
-            console.error(task ? "Failed to edit todo:" : "Failed to add todo:", err);
+        if (task) {
+            setShowConfirmModal(true);
+        } else {
+            await handleAdd();
         }
     };
-
 
     const handleClose = () => {
         resetForm();
@@ -247,6 +268,21 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                     </div>
                 </form>
             </div>
+            {showConfirmModal && (
+                <ConfirmModal
+                    isOpen={showConfirmModal}
+                    onClose={() => setShowConfirmModal(false)}
+                    onConfirm={async () => {
+                        await handleEdit();
+                        setShowConfirmModal(false);
+                    }}
+                    title="Confirm Update"
+                    message={`Are you sure you want to update "${formData.title}"?`}
+                    confirmText="Yes, Update"
+                    cancelText="Cancel"
+                />
+            )}
         </div>
+
     );
 }
