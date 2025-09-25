@@ -41,7 +41,6 @@ export default function Header({ title = "Dashboard" }) {
 
             {/* Sidebar */}
             <Sidebar
-                user={{ name: "Hello User", email: "usertest@gmail.com" }}
                 isMobile={true}
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}

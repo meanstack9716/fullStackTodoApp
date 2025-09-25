@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FaTasks, FaCog, FaQuestionCircle } from "react-icons/fa";
@@ -8,9 +8,10 @@ import { BiTask } from "react-icons/bi";
 import { MdOutlineClose } from "react-icons/md";
 import Button from "@/component/Button";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 export default function Sidebar({
-    user = { name: "", email: "" },
     isMobile = false,
     isOpen = false,
     onClose = () => { }
@@ -21,6 +22,15 @@ export default function Sidebar({
         localStorage.clear();
         router.push('/')
     }
+    const { user } = useSelector((state: RootState) => state.auth);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+    
+    const name = mounted && user ? `${user.firstName} ${user.lastName}`.trim() : "";
+    const email = mounted && user ? user.email : "";
     return (
         <aside
             className={`${isMobile
@@ -47,8 +57,17 @@ export default function Sidebar({
                         className="object-cover"
                     />
                 </div>
-                <h2 className="mt-2 text-lg font-semibold">{user.name}</h2>
-                <p className="text-sm text-white/80">{user.email}</p>
+                {mounted && user ? (
+                    <>
+                        <h2 className="mt-2 text-lg font-semibold">{name}</h2>
+                        <p className="text-sm text-white/80">{email}</p>
+                    </>
+                ) : (
+                    <>
+                        <div className="mt-2 h-5 w-32 bg-sky-500/10 rounded animate-pulse"></div>
+                        <div className="mt-1 h-3 w-40 bg-sky-500/20 rounded animate-pulse"></div>
+                    </>
+                )}
             </div>
 
             {/* Navigation */}
