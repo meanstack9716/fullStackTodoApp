@@ -8,6 +8,7 @@ export default function InputField({
     name,
     value,
     onChange,
+    onBlur,
     placeholder,
     icon,
     error,
@@ -16,7 +17,7 @@ export default function InputField({
         <div>
             <label
                 htmlFor={name}
-                className="block text-gray-700 mb-1 font-medium"
+                className="block text-gray-700 mb-1 font-medium text-sm md:text-base"
             >
                 {label}
             </label>
@@ -28,9 +29,11 @@ export default function InputField({
                     type={type}
                     value={value}
                     onChange={onChange}
+                    onBlur={onBlur}
                     placeholder={placeholder}
                     className={`peer w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-500 text-gray-600 ${error ? "border-red-500" : "border-gray-200"
                         }`}
+                    autoComplete="off"
                 />
 
                 {icon && (

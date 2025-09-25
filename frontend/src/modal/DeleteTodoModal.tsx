@@ -1,7 +1,5 @@
 'use client';
 import React from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { RxCross2 } from "react-icons/rx";
 import ConfirmModalProps from "@/interface/ConfirmModalProps";

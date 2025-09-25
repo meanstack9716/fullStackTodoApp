@@ -22,6 +22,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
     const dispatch = useDispatch<AppDispatch>();
     const { loading, error } = useSelector((state: RootState) => state.todos);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
     const [formData, setFormData] = useState({
         title: "",
         date: "",
@@ -54,8 +55,19 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
     };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setTouched((prev) => ({ ...prev, [name]: true }));
+        let error = "";
+        if (name === "title") error = validateTitle(value) || "";
+        if (name === "date") error = validateDate(value) || "";
+        if (name === "priority") error = validatePriority(value) || "";
+        if (name === "expireAt") error = validateExpireAt(formData.expireAt, formData.date) || "";
+        setErrors((prev) => ({ ...prev, [name]: error }));
+
+    }
 
     const handleAdd = async () => {
         try {
@@ -161,7 +173,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                 </button>
 
                 {/* Heading */}
-                <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-700">
+                <h2 className="text-lg sm:text-xl font-semibold mb-2 text-gray-700 lg:mb-4">
                     {task ? (
                         <span className="hover:underline underline-offset-4 decoration-blue-600 decoration-2 cursor-pointer"><span className="underline decoration-blue-600">Edit</span> Task</span>
                     ) : (
@@ -170,7 +182,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                 </h2>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-2 lg:gap-3">
                     {/* Title */}
                     <InputField
                         label="Title"
@@ -178,6 +190,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                         name="title"
                         value={formData.title}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         placeholder="Enter task title"
                         error={errors.title}
                         icon={<BiTask />}
@@ -190,6 +203,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                         name="date"
                         value={formData.date}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         placeholder="Select a date"
                         error={errors.date}
                         icon={<AiOutlineCalendar />}
@@ -201,6 +215,7 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                         name="expireAt"
                         value={formData.expireAt}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         placeholder="Set expiry time"
                         error={errors.expireAt}
                         icon={<IoIosCalendar />}
@@ -211,11 +226,11 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
                         <label className="block text-gray-700 font-medium mb-0.5 text-sm">
                             Priority
                         </label>
-                        <div className="flex gap-6">
+                        <div className="flex gap-4 lg:gap-6">
                             {["Extreme", "Moderate", "Low"].map((level) => (
-                                <label key={level} className="flex items-center gap-2 text-sm text-gray-500">
+                                <label key={level} className="flex items-center gap-1 text-xs text-gray-500 md:gap-2 md:text-sm">
                                     <span
-                                        className={`w-3 h-3 rounded-full ${level === "Extreme"
+                                        className={`w-2 h-2 rounded-full md:w-3 md:h-3 ${level === "Extreme"
                                             ? "bg-red-500"
                                             : level === "Moderate"
                                                 ? "bg-blue-500"

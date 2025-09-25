@@ -19,19 +19,22 @@ export default function Login() {
     const { loading, error } = useSelector((state: RootState) => state.auth);
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
     const router = useRouter();
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-
-        if (name === "email") {
-            const emailError = validateEmail(value) ?? "";
-            setErrors((prev) => ({ ...prev, email: emailError }));
-        }
-        if (name === "password") {
-            setErrors((prev) => ({ ...prev, password: "" }));
-        }
     };
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+
+        setTouched((prev) => ({ ...prev, [name]: true }));
+        let error = "";
+        if (name === "email") error = validateEmail(value) ?? "";
+        if (name === "password" && !value) error = "Password is required";
+
+        setErrors((prev) => ({ ...prev, [name]: error }));
+    }
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -119,6 +122,7 @@ export default function Login() {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     placeholder="you@example.com"
                                     error={errors.email}
                                     icon={<AiOutlineMail />}
@@ -129,6 +133,7 @@ export default function Login() {
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     placeholder="••••••••"
                                     error={errors.password}
                                 />
