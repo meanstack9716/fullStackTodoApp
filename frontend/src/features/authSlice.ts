@@ -11,6 +11,7 @@ export const signupUser = createAsyncThunk<AuthResponse, SignupData, { rejectVal
       const response = await axiosInstance.post<AuthResponse>("/user/signup", userData);
       if (response.data?.token) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
       }
       return response.data;
     } catch (error) {
@@ -32,6 +33,7 @@ export const loginUser = createAsyncThunk<AuthResponse, LoginData, { rejectValue
       const response = await axiosInstance.post<AuthResponse>("/user/signin", credentials);
       if (response.data?.token) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
       }
       return response.data;
     } catch (error) {
@@ -105,7 +107,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: null,
+  user: typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "null") : null,
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
   loading: false,
   error: null
