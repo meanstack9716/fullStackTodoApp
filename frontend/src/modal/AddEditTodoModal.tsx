@@ -13,6 +13,7 @@ import { AppDispatch, RootState } from "@/store/store";
 import { addTodo, editTodo } from "@/features/todoSlice";
 import ConfirmModal from "./DeleteTodoModal";
 import { toast } from "react-toastify";
+import { formatDateForInput } from "../../utils/dateUtils";
 
 const RichTextEditor = dynamic(() => import("@/component/RichTextEditor"), {
     ssr: false,
@@ -42,9 +43,9 @@ export default function AddEditTodoModal({ isOpen, onClose, onSave, task }: AddE
         if (task) {
             setFormData({
                 title: task.title,
-                date: task.date ? new Date(task.date).toISOString().slice(0, 16) : "",
+                date: task.date ? formatDateForInput(task.date) : "",
                 priority: task.priority,
-                expireAt: task.expireAt ? new Date(task.expireAt).toISOString().slice(0, 16) : ""
+                expireAt: task.expireAt ? formatDateForInput(task.expireAt) : ""
             });
         } else {
             resetForm();
