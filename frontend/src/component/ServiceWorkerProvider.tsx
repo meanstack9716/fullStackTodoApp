@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-
-import { subscribeUser } from "@/features/pushSlice";
 import { useDispatch } from "react-redux";
+import { subscribeUser } from "@/features/pushSlice";
 import { AppDispatch } from "@/store/store";
+import { messaging } from "@/firebase/firebaseClient";
 
 export default function ServiceWorkerProvider({ userId }: { userId: string }) {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
+    if (!messaging) return;
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
-        .register("/sw.js")
+        .register("/firebase-messaging-sw.js")
         .then(() => {
-          console.log("Service Worker registered");
+          console.log("Firebase Service Worker registered");
           if (userId) dispatch(subscribeUser(userId));
         })
         .catch((err) => console.error("SW registration failed:", err));

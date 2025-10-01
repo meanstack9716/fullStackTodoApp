@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { urlBase64ToUint8Array } from "../../utils/pushUtils";
+import { messaging } from "@/firebase/firebaseClient";
+import { getToken } from "firebase/messaging";
 
 interface PushState {
-  subscription: PushSubscriptionJSON | null;
+  fcmToken: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -10,28 +11,30 @@ interface PushState {
 export const subscribeUser = createAsyncThunk(
   "push/subscribe",
   async (userId: string, { rejectWithValue }) => {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      return rejectWithValue("Push not supported");
-    }
-
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          process.env.NEXT_PUBLIC_VAPID_KEY!
-        ),
-      });
+      if (!("Notification" in window)) return rejectWithValue("Notifications not supported");
+
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") return rejectWithValue("Permission not granted");
+
+      const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY!;
+      if (!messaging) return rejectWithValue("Firebase messaging not initialized");
+      const fcmToken = await getToken(messaging, { vapidKey });
+console.log("Got FCM Token:", fcmToken);
+      if (!fcmToken) return rejectWithValue("No FCM token received");
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/push/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...subscription.toJSON(), userId }),
+        body: JSON.stringify({ fcmToken, userId }),
       });
 
-      if (!res.ok) throw new Error("Subscription failed");
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Subscription failed: ${text}`);
+      }
 
-      return subscription.toJSON();
+      return fcmToken;
     } catch (err) {
       return rejectWithValue((err as Error).message);
     }
@@ -39,7 +42,7 @@ export const subscribeUser = createAsyncThunk(
 );
 
 const initialState: PushState = {
-  subscription: null,
+  fcmToken: null,
   loading: false,
   error: null,
 };
@@ -56,7 +59,7 @@ const pushSlice = createSlice({
       })
       .addCase(subscribeUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.subscription = action.payload;
+        state.fcmToken = action.payload;
       })
       .addCase(subscribeUser.rejected, (state, action) => {
         state.loading = false;

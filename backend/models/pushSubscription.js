@@ -1,12 +1,20 @@
 const mongoose = require('mongoose');
 
 const pushSubscriptionSchema = new mongoose.Schema({
-  endpoint: String,
-  keys: {
-    p256dh: String,
-    auth: String,
+  fcmToken: {
+    type: String,
+    required: true,
+    unique: true
   },
-  userId: String,
+  userId: {
+    type: String,
+    default: null
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 module.exports = mongoose.model('PushSubscription', pushSubscriptionSchema);
+
