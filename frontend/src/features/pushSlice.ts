@@ -9,9 +9,13 @@ interface PushState {
   error: string | null;
 }
 
-export const subscribeUser = createAsyncThunk(
+export const subscribeUser = createAsyncThunk<
+  string,     
+  string,         
+  { rejectValue: string } 
+>(
   "push/subscribe",
-  async (_, { rejectWithValue }) => {
+  async (userId, { rejectWithValue }) => {
     try {
       if (!("Notification" in window)) return rejectWithValue("Notifications not supported");
 
@@ -23,8 +27,8 @@ export const subscribeUser = createAsyncThunk(
       const fcmToken = await getToken(messaging, { vapidKey });
       if (!fcmToken) return rejectWithValue("No FCM token received");
 
-     await axiosInstance.post(`/push/subscribe`, { fcmToken })
-      return fcmToken;  
+      await axiosInstance.post(`/push/subscribe`, { fcmToken, userId })
+      return fcmToken;
     } catch (err) {
       return rejectWithValue((err as Error).message);
     }
