@@ -11,7 +11,6 @@ const chunk = (arr, size) => {
 
 const startReminderCron = () => {
     cron.schedule('*/2 * * * *', async () => {
-        console.log("Reminder Cron running at", new Date());
         try {
             const now = new Date();
             const sixHoursLater = new Date(now.getTime() + 6 * 60 * 60 * 1000);
@@ -20,12 +19,10 @@ const startReminderCron = () => {
                 expireAt: { $gte: now, $lte: sixHoursLater },
                 status: { $ne: 'Completed' },
             });
-            console.log("Todos found:", todos.length);
             if (!todos.length) return;
 
             const subs = await PushSubscription.find();
             const tokens = subs.map(s => s.fcmToken).filter(Boolean);
-            console.log("Tokens:", tokens);
             if (!tokens.length) return;
 
             for (const todo of todos) {
@@ -52,13 +49,11 @@ const startReminderCron = () => {
                         apns: notification.apns,
                     });
 
-
                     res.responses.forEach((r, idx) => {
                         if (!r.success) {
                             const err = r.error;
                             const badToken = chunkTokens[idx];
                             if (err && (err.code === 'messaging/registration-token-not-registered' || err.code === 'messaging/invalid-registration-token')) {
-                                console.log('Removing invalid FCM token:', badToken);
                                 PushSubscription.deleteOne({ fcmToken: badToken }).catch(console.error);
                             } else {
                                 console.warn('FCM message error:', err?.code || err);

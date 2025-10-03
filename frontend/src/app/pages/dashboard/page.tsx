@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import MainLayout from "@/component/layout/MainLayout";
 import { format, isToday } from "date-fns";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import { fetchTodos } from "@/features/todoSlice";
 
 export default function Dashboard() {
   const dispatch = useDispatch<AppDispatch>();
-  const { todos, loading, error } = useSelector((state: RootState) => state.todos);
+  const { todos } = useSelector((state: RootState) => state.todos);
 
   useEffect(() => {
     dispatch(fetchTodos({ page: 1, limit: 10 }));

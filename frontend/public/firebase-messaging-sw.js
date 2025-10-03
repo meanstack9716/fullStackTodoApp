@@ -1,4 +1,3 @@
-console.log("SW loaded ✅");
 importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js');
 
@@ -13,7 +12,6 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function (payload) {
-  console.log("BG message:", payload);
   const notification = payload.notification || {};
   const title = notification.title || 'Notification';
   const options = {

@@ -15,7 +15,6 @@ export default function ServiceWorkerProvider({ userId }: { userId: string }) {
       navigator.serviceWorker
         .register("/firebase-messaging-sw.js")
         .then(() => {
-          console.log("Firebase Service Worker registered");
           if (userId) dispatch(subscribeUser(userId));
         })
         .catch((err) => console.error("SW registration failed:", err));

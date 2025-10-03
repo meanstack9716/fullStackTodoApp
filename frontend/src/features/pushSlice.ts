@@ -20,7 +20,6 @@ export const subscribeUser = createAsyncThunk(
       const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY!;
       if (!messaging) return rejectWithValue("Firebase messaging not initialized");
       const fcmToken = await getToken(messaging, { vapidKey });
-console.log("Got FCM Token:", fcmToken);
       if (!fcmToken) return rejectWithValue("No FCM token received");
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/push/subscribe`, {
