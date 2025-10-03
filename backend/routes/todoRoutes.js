@@ -2,23 +2,26 @@ const express = require('express');
 const router = express.Router();
 const Todo = require('../models/todo');
 const { validateTodo } = require('../validator/todoValidator');
+const { authMiddleware } = require('../middlewares/authMiddleware');
+const { TodoStatus } = require('../enums/todoStatus');
 
 // add new todo api 
-router.post('/add', async (req, res) => {
+router.post('/add', authMiddleware, async (req, res) => {
     try {
         const errors = validateTodo(req.body);
         if (Object.keys(errors).length > 0) {
             return res.status(400).json({ errors });
         }
         const { title, description, date, priority, expireAt } = req.body;
-        const status = expireAt && new Date(expireAt) < new Date() ? "Expired" : "Pending";
+        const status = expireAt && new Date(expireAt) < new Date() ? TodoStatus.Expired : TodoStatus.Pending;
         const newTodo = new Todo({
             title,
             description,
             date,
             priority,
             expireAt,
-            status
+            status,
+            user: req.user.id
         })
         const savedTodo = await newTodo.save();
         res.status(200).json(savedTodo);
@@ -29,14 +32,14 @@ router.post('/add', async (req, res) => {
 })
 
 // all todos api
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     try {
-        const totalTodos = await Todo.countDocuments();
-        const todos = await Todo.find().sort({ date: -1 }).skip(skip).limit(limit);
+        const totalTodos = await Todo.countDocuments({ user: req.user.id });
+        const todos = await Todo.find({ user: req.user.id }).sort({ date: -1 }).skip(skip).limit(limit);
         res.json({
             todos,
             currentPage: page,

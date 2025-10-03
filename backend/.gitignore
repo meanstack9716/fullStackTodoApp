@@ -1,5 +1,11 @@
 # Node modules
 node_modules/
 
-# Environment variables
+# Environment files
 .env
+
+# Firebase files
+config/*.json
+
+# Logs
+*.log
