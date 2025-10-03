@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const PushSubscription = require('../models/pushSubscription');
 
-// Subscribe (store fcmToken)
+// Subscribe
 router.post('/subscribe', async (req, res) => {
   try {
     const { fcmToken, userId } = req.body;
@@ -19,7 +19,7 @@ router.post('/subscribe', async (req, res) => {
   }
 });
 
-// Unsubscribe (optional)
+// Unsubscribe
 router.post('/unsubscribe', async (req, res) => {
   try {
     const { fcmToken } = req.body;
