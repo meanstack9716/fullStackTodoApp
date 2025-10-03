@@ -16,8 +16,7 @@ const stripHtmlTags = (str) => {
 };
 
 const startReminderCron = () => {
-    cron.schedule('*/2 * * * *', async () => {
-        // cron.schedule('0 */2 * * *', async () => {
+        cron.schedule('0 */2 * * *', async () => {
         try {
             const now = new Date();
             const sixHoursLater = new Date(now.getTime() + 6 * 60 * 60 * 1000);
