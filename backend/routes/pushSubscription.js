@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const PushSubscription = require('../models/pushSubscription');
+const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Subscribe
-router.post('/subscribe', async (req, res) => {
+router.post('/subscribe', authMiddleware, async (req, res) => {
   try {
-    const { fcmToken, userId } = req.body;
+    const { fcmToken } = req.body;
+    const userId = req.user.id;
     if (!fcmToken) return res.status(400).json({ message: 'fcmToken required' });
 
     const existing = await PushSubscription.findOne({ fcmToken });
@@ -20,11 +22,12 @@ router.post('/subscribe', async (req, res) => {
 });
 
 // Unsubscribe
-router.post('/unsubscribe', async (req, res) => {
+router.post('/unsubscribe', authMiddleware, async (req, res) => {
   try {
     const { fcmToken } = req.body;
+    const userId = req.user.id;
     if (!fcmToken) return res.status(400).json({ message: 'fcmToken required' });
-    await PushSubscription.deleteOne({ fcmToken });
+    await PushSubscription.deleteOne({ fcmToken, userId });
     res.status(200).json({ message: 'Unsubscribed' });
   } catch (err) {
     console.error(err);

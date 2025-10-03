@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { messaging } from "@/firebase/firebaseClient";
 import { getToken } from "firebase/messaging";
+import axiosInstance from "@/api/axiosInstance";
 
 interface PushState {
   fcmToken: string | null;
@@ -10,7 +11,7 @@ interface PushState {
 
 export const subscribeUser = createAsyncThunk(
   "push/subscribe",
-  async (userId: string, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       if (!("Notification" in window)) return rejectWithValue("Notifications not supported");
 
@@ -22,18 +23,8 @@ export const subscribeUser = createAsyncThunk(
       const fcmToken = await getToken(messaging, { vapidKey });
       if (!fcmToken) return rejectWithValue("No FCM token received");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/push/subscribe`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fcmToken, userId }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Subscription failed: ${text}`);
-      }
-
-      return fcmToken;
+     await axiosInstance.post(`/push/subscribe`, { fcmToken })
+      return fcmToken;  
     } catch (err) {
       return rejectWithValue((err as Error).message);
     }

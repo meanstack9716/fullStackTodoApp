@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const admin = require('../config/firebaseAdmin');
 const Todo = require('../models/todo');
 const PushSubscription = require('../models/pushSubscription');
+const { TodoStatus } = require('../enums/todoStatus');
 
 const chunk = (arr, size) => {
     const out = [];
@@ -10,22 +11,21 @@ const chunk = (arr, size) => {
 };
 
 const startReminderCron = () => {
-    cron.schedule('*/2 * * * *', async () => {
+    cron.schedule('0 */2 * * *', async () => {
         try {
             const now = new Date();
             const sixHoursLater = new Date(now.getTime() + 6 * 60 * 60 * 1000);
 
             const todos = await Todo.find({
                 expireAt: { $gte: now, $lte: sixHoursLater },
-                status: { $ne: 'Completed' },
+                status: { $ne: TodoStatus.Completed },
             });
             if (!todos.length) return;
 
-            const subs = await PushSubscription.find();
-            const tokens = subs.map(s => s.fcmToken).filter(Boolean);
-            if (!tokens.length) return;
-
             for (const todo of todos) {
+                const subs = await PushSubscription.find({ userId: todo.user });
+                const tokens = subs.map(s => s.fcmToken).filter(Boolean);
+                if (!tokens.length) continue;
                 const notification = {
                     notification: {
                         title: '📝 Task Reminder!',
