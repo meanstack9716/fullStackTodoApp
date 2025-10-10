@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 const authRoutes = require('./routes/authRoutes');
 const todoRoutes = require('./routes/todoRoutes')
 const pushRoutes = require('./routes/pushSubscription');
-const { dbConnection } = require("./config/dbConnect");
+const { dbConnection } = require("./config/mySqlDbConnect");
 const User = require("./model/userModel");
 const mysqlAuthRoutes = require("./routes/mysqlAuthRoutes");
 

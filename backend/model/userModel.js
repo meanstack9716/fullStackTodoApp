@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
-const { sequelize } = require("../config/dbConnect");
+const { sequelize } = require("../config/mySqlDbConnect");
 
 const User = sequelize.define(
   "User",
@@ -28,6 +28,10 @@ const User = sequelize.define(
       },
       validate: {
         notEmpty: { msg: "Username is required" },
+        is: {
+          args: /^[a-zA-Z0-9_]+$/,
+          msg: "Username can only contain letters, numbers, and underscores",
+        },
       },
     },
     email: {
@@ -46,9 +50,14 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        len: {
-          args: [6],
-          msg: "Password must be at least 6 characters long",
+        notEmpty: { msg: "Password is required" },
+        isStrongPassword(value) {
+          const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+          if (!strongPasswordRegex.test(value)) {
+            throw new Error(
+              "Password must include at least one uppercase letter, one lowercase letter, and one number (min 6 chars)"
+            );
+          }
         },
       },
     },

@@ -2,7 +2,7 @@ const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize("todoApp", "root", "", {
   host: "localhost",
   dialect: "mysql",
-   logging: console.log,
+  logging: console.log,
 });
 
 const dbConnection = async () => {
