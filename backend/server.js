@@ -18,13 +18,19 @@ app.use(express.urlencoded({ extended: true }));
 const authRoutes = require('./routes/authRoutes');
 const todoRoutes = require('./routes/todoRoutes')
 const pushRoutes = require('./routes/pushSubscription');
+const { dbConnection } = require("./config/dbConnect");
+const User = require("./model/userModel");
+const mysqlAuthRoutes = require("./routes/mysqlAuthRoutes");
 
 app.use('/user', authRoutes)
 app.use('/todos', todoRoutes)
 app.use('/push', pushRoutes);
+app.use("/mysql-user", mysqlAuthRoutes); 
 
-app.listen(PORT, () => {
+app.listen(PORT, async() => {
       console.log(`Listening on port ${PORT}`);
+       dbConnection();
+  await User.sync({ alter: true }); 
       startExpireCron()
       startReminderCron();
 })
