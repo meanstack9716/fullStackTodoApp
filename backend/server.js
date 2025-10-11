@@ -23,11 +23,13 @@ const pushRoutes = require("./routes/pushSubscription");
 const { dbConnection, sequelize } = require("./config/mySqlDbConnect");
 const User = require("./model/userModel");
 const mysqlAuthRoutes = require("./routes/mysqlAuthRoutes");
+const mysqlTodoToutes = require("./routes/todoMysqlRoutes")
 
 app.use("/user", authRoutes);
 app.use("/todos", todoRoutes);
 app.use("/push", pushRoutes);
 app.use("/mysql-user", mysqlAuthRoutes);
+app.use("/mysql-todos", mysqlTodoToutes)
 
 app.listen(PORT, async () => {
   console.log(`Listening on port ${PORT}`);
