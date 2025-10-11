@@ -8,13 +8,13 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-async function sendEmail(to, subject, text) {
+async function sendEmail(to, subject, htmlContent) {
     try {
         const info = await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to,
             subject,
-            text
+            html: htmlContent,
         });
         return true;
     } catch (err) {

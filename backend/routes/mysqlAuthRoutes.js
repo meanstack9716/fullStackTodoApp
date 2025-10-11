@@ -105,19 +105,21 @@ router.post("/send-otp", async (req, res) => {
       otp: hashedOtp,
       expiresAt: otpExpires,
     });
+
+    // const otpMessage = <h2></h2>
     await sendEmail(
       email,
       "Todo App - OTP Code",
-      `Hello,
-             We received a request to verify your account on Todo App.
-             Your OTP for Todo App is: ${otp}
+      `<p>Hello,</p>
+             <p>We received a request to verify your account on <strong>Todo App.</strong></p>
+             <p>Your OTP for Todo App is: <strong>${otp}</strong><p>
              
-             ⏳ It will expire in 10 minutes.  
-             ⚠️ Do not share this code with anyone.
+             <p>⏳ It will expire in 10 minutes.</p>  
+             <p>⚠️ Do not share this code with anyone.</p>
              
-             If you didn’t request this, please ignore this email.
+             <p>If you didn’t request this, please ignore this email.</p>
              
-             - Todo App Team`
+             <p>- Todo App Team</p>`
     );
 
     res.json({ message: "OTP sent successfully" });
