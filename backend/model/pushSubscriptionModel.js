@@ -1,5 +1,6 @@
 const DataTypes = require("sequelize");
 const { sequelize } = require("../config/mySqlDbConnect");
+const User = require("./userModel");
 
 const PushSubscription = sequelize.define(
   "PushSubscription",
@@ -13,6 +14,10 @@ const PushSubscription = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: null,
+      references:{
+        model:User,
+        key:'id'
+      }
     },
     createdAt: {
       type: DataTypes.DATE,
