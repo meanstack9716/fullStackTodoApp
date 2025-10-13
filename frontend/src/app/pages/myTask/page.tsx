@@ -166,7 +166,7 @@ export default function MyTasks() {
                                 <div className="flex gap-0.5 text-sm text-gray-500 break-normal font-sans leading-5">
                                     <span className="text-gray-600 font-semibold">🗒️ Task Description:</span>
                                     <div
-                                        className="prose"
+                                        className="prose break-all hyphens-auto"
                                         dangerouslySetInnerHTML={{ __html: selectedTask.description || "No description available" }}
                                     />
                                 </div>
